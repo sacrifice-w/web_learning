@@ -118,6 +118,28 @@ target属性来指定超链接打开的位置
 `<img src="路径" alt="">`使用img标签来引入外部图片，src的路径规则和超链接相同
 可以通过alt属性来添加图片的描述，默认不显示，图片无法加载时显示（不是所有浏览器都能）。
 主要搜索引擎可以根据alt中的内容来识别图片，不写alt属性就不会被搜索引擎识别
+
+## 1.10 内联框架
+用于向当前页面内引入一个其他页面,frameborder用于指定内联框架的边框
+`<iframe src="路径" frameborder="0"></iframe>`
+因为其不会被搜索引擎检索，所以基本不用
+
+## 1.11 音视频播放
+音视频引入时，默认情况下不允许用户自己控制播放停止
+`<audio src="path">`来向页面引入一个外部的音频文件
+`<audio src="path" controls autoplay loop>`通过controls来允许用户控制播放，
+通过autoplay来控制自动播放，但大部分浏览器不能自动播放
+通过loop控制循环
+也可以通过source标签来控制,通过这种方式可以解决大部分的浏览器不兼容问题
+```HTML
+<audio controls>
+    <source src="audio.mp3">
+    <source src="audio.ogg">
+    <embed src="audio.mp3" type="audio.mp3" width="300">
+</audio>
+<!-- 按顺序读取来解决兼容问题，最下面那个是兼容ie8，但是感觉也没人用，所以其实没啥用 -->
+```
+`<video src="path" controls>`和音频同理，就是audio换成了video
 # 二、一些快捷键
 1.在vscode中直接！+tab键或者！+回车生成一个标准html框架
 2.ctrl+/生成注释
