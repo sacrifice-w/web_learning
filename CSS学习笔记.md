@@ -127,4 +127,4 @@ _超链接的伪类_
 
 就比如div ::before{content:'hello'} 表示的是在div元素前面加一个hello。
 
-阶段性练习：餐厅练习(https://flukeout.github.io/)，用来做css选择器的练习
+阶段性练习：餐厅练习(https://flukeout.github.io/)
