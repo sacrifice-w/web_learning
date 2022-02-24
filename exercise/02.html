@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片侧边栏</title>
+    <link rel="stylesheet" href="../CSS/reset.css">
+    <style>
+        body{
+            background-color: #bfa;
+        }
+        .left_nav{
+            width: 190px;
+            height: 150px;
+            padding: 10px 0;
+            background-color: #fff;
+            margin: 50px auto;
+        }
+        /* 这里设置的是父元素，不是子元素文字，他直接设置了父元素高度，从而显示子元素大小
+        再让line-height和height一样来让元素垂直居中 */
+        .left_nav .item{
+            height: 25px;
+            line-height: 25px;
+            /* 将字体向内移动 */
+            padding-left: 18px;
+        }
+        .item :hover{
+            background-color: #d9d9d9;
+        }
+
+        .item a{
+            color: #333;
+            text-decoration: none;
+        }
+        .item a:hover{
+            color: #c81623;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="left_nav">
+        <div class="item">
+            <a href="#">家用电器</a>
+        </div>
+        <div class="item">
+            <a href="#">手机</a>/
+            <a href="#">运营商</a>/
+            <a href="#">数码</a>
+        </div>
+        <div class="item">
+            <a href="#">电脑</a>/
+            <a href="#">办公</a>
+        </div>
+        <div class="item">
+            <a href="#">家具</a>/
+            <a href="#">家居</a>/
+            <a href="#">家装</a>
+        </div>
+        <div class="item">
+            <a href="#">男装</a>/
+            <a href="#">女装</a>/
+            <a href="#">内衣</a>/
+            <a href="#">童装</a>
+        </div>
+    </nav>
+</body>
+
+</html>

@@ -1,64 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>练习1</title>
+    <title>图片加列表</title>
     <link rel="stylesheet" href="../CSS/reset.css">
     <style>
-        .line{
-            width: 200px;
-            height: 2px;
-            background-color: gray;
-            /* border: 1px gray solid; */
+        /* body {
+            background-color: aquamarine;
+        } */
+
+        .news-wrapper {
+            width: 300px;
+            height: 359px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
         }
-        .line_head{
-            width: 40px;
-            height: 2px;
-            background-color: red;
-            /* border: 1px red solid; */
-        }
-        .LittleTitle{
-            margin-top: 5px;
-            font-size: 14px;
-            font-family: 微软雅黑;
-            font-weight: bold; 
+
+        .news-title {
+            /* 将字体设置成行内元素，这样就能让他的上边框只有一截，再用负的margin来使其和大框对齐 */
+            display: inline-block;
+            height: 40px;
+            border-top: 1px solid red;
+            margin-top: -1px;
+            /* 把文字顶下去 */
+            padding-top: 10px;
 
         }
-        img{
-            margin-top: 5px;
-            margin-left: 1px;
-            margin-bottom: 10px;
-            width: 200px;
+
+        .news-img {
+            height: 90px;
         }
-        li{
-            font-size: xx-small;
-            margin-bottom: 10px;
-            margin-left: 1px;
+
+        .news-list{
+            margin-top: 20px;
+            padding-left: 14px;
         }
-        a.down:link{
-            color: gray;
+
+        a {
+            text-decoration: none;
         }
-        a.down:visited{
+
+        .news-title a {
             color: black;
+            font-weight: bold;
+
         }
 
+        .news-img .img-title {
+            margin-top: -60px;
+            color: red;
+            font-weight: bolder;
+            padding-left: 120px;
+        }
+
+        .news-list li{
+            margin-bottom: 17px;
+        }
+
+        .news-list li a{
+            font-size: 14px;
+            color: #666;
+        }
+
+        .news-list li ::before{
+            content: '⊙';
+            color: #666;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .news-list li a:hover{
+            color: red;
+        }
     </style>
 </head>
+
 <body>
-    <div class="line">
-        <div class="line_head"></div>
+    <div class="news-wrapper">
+
+        <div class="news-title">
+            <a href="#">跳转</a>
+        </div>
+
+        <div class="news-img">
+            <a href="https://www.baidu.com">
+                <img src="../exercise_picture/1.png" alt="">
+                <h2 class="img-title">百度</h2>
+            </a>
+        </div>
+
+        <ul class="news-list">
+            <!-- 列表里原来能加超链接，超链接里再加字... -->
+            <li><a href="https://www.bilibili.com">这里跳转去B站</a></li>
+            
+            <li><a href="https://www.acfun.cn">这里跳转去A站</a></li>
+            
+            <li><a href="https://www.youku.com">这里跳转去优酷</a></li>
+        </ul>
+
     </div>
-    <div class="LittleTitle">体育</div>
-    <a href="https://www.baidu.com">
-        <img  src="../exercise_picture/新闻列表.png" alt="">
-    </a>
-    <ul>
-        <a href="https://www.bilibili.com" class="down"><li>这里跳转去B站</li></a>
-        <a href="https://www.acfun.cn" class="down"><li>这里跳转去A站</li></a>
-        <a href="https://www.youku.com" class="down"><li>这里跳转去优酷</li></a>
-        <a href="https://www.aiqiyi.com" class="down"><li>这里跳转去爱奇艺</li></a>
-    </ul>
 </body>
+
 </html>
