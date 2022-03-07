@@ -414,3 +414,31 @@ z-index需要一个整数作为参数，值越大元素的层级越高
 祖先元素的层级再高，也不会盖住后代元素
 
 练习05.html,只是完成了定位，但是想要切换还是得靠js
+
+# 1.4 字体
+color：字体颜色
+font-size:字体的大小
+em相当于当前元素的一个font-size
+rem相当于根元素的一个font-size
+
+font-family 字体族（字体的格式） 可以同时指定多个字体，多个字体间使用,隔开，字体生效时优先使用第一个，第一个无法使用则使用第二个...
+可选值：serif 衬线字体
+       sans-serif 非衬线字体
+       monospace 等宽字体
+可以使用@font-face来将服务器中的字体直接提供给客户去使用
+```css
+@font-face{
+  /* 用这个来给字体命名 */
+  font-family:'myfont';
+  /* 指定字体路径 */
+  src:url('./font/xxx.ttf') format('truetype');
+}
+```
+使用时需要下载字体来给用户使用，所以会有加载速度问题，也有版权问题。
+## 1.4.1 图标字体（iconfont）
+在网页中经常要使用一些图标，可以通过图片来引入图标
+将图标直接设置为字体，然后通过font-face的形式来对字体进行引入，通过使用字体的形式来使用图标
+从fontawesome中引入，将all.css引入到网页中
+使用图标字体，直接通过类名来使用图标字体
+`class="fas fa-bell"`
+`class="fab fa-accessible-icon"`
