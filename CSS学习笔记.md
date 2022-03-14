@@ -442,3 +442,73 @@ font-family 字体族（字体的格式） 可以同时指定多个字体，多�
 使用图标字体，直接通过类名来使用图标字体
 `class="fas fa-bell"`
 `class="fab fa-accessible-icon"`
+阿里云旗下图标字体库
+“https://www.iconfont.cn”
+## 1.4.2 图标字体的其他用法
+通过伪元素来设置图标字体
+1. 找到要设置图标的元素通过before或after选中
+1. 在content中设置字体的编码
+1. 设置字体的样式
+fab:
+font-family:'Font Awesome 5 Brands'
+
+fas:
+font-family:'Fot Awesome 5 Free'
+font-weight:'900px'
+## 1.4.3 行高（line height）
+- 行高指的是文字占有的实际高度
+- 通过line-height来设置行高，行高可以直接指定一个大小（px em）
+也可以直接为行高设置一个整数 如果是一个整数的话，行高将会是字体的指定的倍数
+- 字体框就是字体存在的格子，设置font-size实际上就是在设置字体框的高度
+行高会在字体框的上下平均分配
+可以将行高设置为和高度一样的值，使单行文字在一个元素中垂直居中
+`height:200px; line-height:200px;`
+- 行高可以用来设置文字的行间距
+行间距=行高-字体大小
+## 1.4.4 字体的简写属性
+font可以设置字体相关的所有属性
+语法：
+font:字体大小/行高 字体族
+行高可以不写，不写就会使用默认值
+font-weight：bond 这个是用来控制自己的加粗，当然这个也可以应用到font里。
+`font: italic bold 50px/2 微软雅黑;`
+## 1.4.5  文本的样式
+- text-align 文本的水平对齐
+可选值：left 左对齐
+       right 右对齐
+       center 居中对齐
+      justify 两端对齐
+
+- vertical-align 设置元素垂直对齐的方式
+可选值：baseline 默认值 基线对齐
+       top 顶部对齐
+       middle 居中对齐 （子元素的中线和X的中线对齐）感觉有点蠢...
+       bottom 底部对齐
+
+- text-decoration 设置文本修饰
+可选值：none 什么都没有
+       underline 下划线
+       line-through 删除线
+       overline 上划线
+可以设置样式
+
+- white-space 设置网页如何处理空白
+可选值：normal 正常
+       nowrap 不换行
+       pre 保留空白
+
+将某些长文字省略显示
+```css
+<style>
+.box1{
+  /* 设置文字显示宽度 */
+width:200px;
+/* 设置文字不换行 */
+white-space:nowrap;
+/* 将超出宽度的文字隐藏 */
+overflow:hidden;
+/* 显示省略号 */
+text-overflow:ellipsis;
+}
+</style>
+```
