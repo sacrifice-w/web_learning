@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航条</title>
+    <link rel="stylesheet" href="../CSS/reset.css">
+    <link rel="stylesheet" href="../fontawesome/css/all.css">
+    <style>
+        .top-bar-wrapper{
+            width: 100%;
+            background-color: #5a636d;
+            height: 30px;
+            line-height: 30px;
+            border-bottom: 1px #ddd solid;
+        }
+
+        .top-bar{
+            width: 1190px;
+            /* 设置水平居中效果 */
+            margin: 0 auto;
+        }
+        .location{
+            float: left;
+        }
+        .location .fas{
+            color: #f10215;
+        }
+
+
+        .shortcut{
+            float: right;
+        }
+        .shortcut li{
+            float: left;
+        }
+        .shortcut .line{
+            width: 1px;
+            height: 10px;
+            background-color: #999;
+            margin: 10px 12px;
+
+        }
+        body{
+            font-size: 12px/1.5;
+            font-family: 微软雅黑;
+        }
+        .top-bar a ,
+        .top-bar i{
+            color: #999;
+            text-decoration: none;
+        }
+
+        .top-bar a:hover{
+            color: #f10215;
+        }
+
+        .top-bar .highlight{
+            color: red;
+        }
+
+        .location .city-list{
+            display: none;
+            width: 300px;
+            height: 300px;
+            background-color: white;
+            border: 1px solid rgb(204,204,204);
+            position: absolute;
+        }
+
+        .location:hover .city-list{
+            display: block;
+        }
+
+        .current-city:hover{
+            background-color: white;
+            border: 1px solid rgb(204,204,204);
+            border-bottom: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar-wrapper">
+        <div class="top-bar">
+            <div class="location">
+                <div class="current-city">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <a href="javascripts:;">北京</a>
+                </div>
+                <div class="city-list">
+
+                </div>
+            </div>
+            <ul class="shortcut">
+                <li>
+                    <a href="javascripts:;">你好，请登录</a>
+                    <a class='highlight' href="javascripts:;">免费注册</a>
+                </li>
+
+                <li class="line"></li>
+                <li><a href="javascripts:;">我的订单</a></li>
+
+                <li class="line"></li>
+                <li><a href="javascripts:;">我的京东</a>
+                    <i class="fas fa-angle-down"></i>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
