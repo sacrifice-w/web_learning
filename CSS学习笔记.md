@@ -512,4 +512,118 @@ text-overflow:ellipsis;
 }
 </style>
 ```
+## 1.5 表格
+通过table标签来创建一个表格
+```html
+<table>
+  <!-- 在table中使用tr表示表格中的一行，有几个tr就有几行 -->
+  <tr>
+    <!-- 在tr中使用td来表示一个单元格，有几个td就有几个单元格 -->
+    <td>A1</td>
+    <td>B1</td>
+    <td>C1</td>
+  </tr>
+  <tr>
+    <td>A2</td>
+    <td>B2</td>
+    <td colspan='2'>C2</td>
+  </tr>
+</table>
+```
+通过colspan属性来表示一个单元格会占据两个表格的位置
+### 1.5.1 长表格
+可以将一个表格分成三个部分
+头部：thead
+主题：tbody
+底部：tfoot
+```html
+<table>
+  <thead>
+    <tr>
+      <td>A1</td>
+      <td>B1</td>
+      <td>C1</td>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>A2</td>
+    <td>B2</td>
+    <td colspan='2'>C2</td>
+  </tr>
+  </tbody>
+  <tfoot>
+<!-- 通过这三个标签来保证表格的位置不会改变 -->
+  </tfoot>
+</table>
+```
+### 1.5.2 表格的样式
+用CSS来对表格设置样式
+```css
+<style>
+table{
+  width:50%;
+  border:1px solid black;
+  /* border-spacing可以指定边框之间的距离 */
+  border-spacing:0px;
+  /* border-collapse:collapse 设置边框的合并*/
+  border-collapse:collapse;
 
+/* 通过这两个可以垂直居中 */
+  display:table-cell;
+  vertical-align:middle;
+}
+
+</style>
+```
+这么复杂，我为啥不直接用mysql做呢。。。
+如果表格中没有tbody而是直接使用他人，浏览器会自动创建一个tbody，并且把tr全部放到tbody中，tr不是table的子元素
+
+## 1.6 表单
+表单：
+- 在现实生活中表单用于提交数据
+- 在网页中可以使用表单，网页中的表单用于将本地的数据提交给远程的服务器
+- 使用form标签来创建一个表单
+`<form action="xxx.xx.xx.xxx">`action里是表单要提交的服务器地址
+```html
+<!-- autocomplete='off'可以关闭自动补全 -->
+<form action='xxx' autocomplete='off'>
+  <!-- type中的text表示文本框 -->
+  <!-- 数据想要提交到服务器的话，必须为元素指定一个name属性 -->
+  <!-- readonly将表单项设置为只读，数据会提交
+       disabled将表单设置为禁用，数据不会提交
+       autofocus 设置表单项自动获取焦点 -->
+  文本框<input type='text' name="username" readonly>
+  密码框<input type='password' name="password">
+  
+  <!-- submit表示提交按钮，可以通过value来改变他的样式 -->
+  <input type='submit' value='注册'>
+  <!-- 普通的按钮，没用，但是可以通过js来给他功能 -->
+  <input type='botton' value='按钮'>
+  <!-- 重置按钮 -->
+  <input type='reset' >
+  <!-- 或者可以通过button标签来实现这些 -->
+  <button type='submit'>提交</button>
+  <button type='reset'>重置</button>
+  <button type='button'>按钮</button>
+
+
+  <!-- 单选按钮 -->
+  <!-- 这种选择框，必须指定一个value属性 value属性最终会作为用户的填写的值-->
+  <!-- checked属性可以将单选按钮设置为默认选中值 -->
+  单选按钮<input type="radio" name='hello' value="a">
+          <input type="radio" name="hello" value="b">
+
+
+多选按钮<input type="checkbox" name='test' value="a">
+          <input type="checkbox" name="test" value="b">
+
+下拉列表<select name='xxx'>
+          <option value='i'>选项一</option>
+          <!-- 表示默认选中值 -->
+          <option select value='ii'>选项二</option>
+          <option value='iii'>选项三</option>
+       </select>
+
+</form>
+```
