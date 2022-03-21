@@ -24,4 +24,47 @@ cubic-bezier()来指定时序函数-->(https://cubic-bezier.com)
 动画和过渡类似，不同的是过渡需要在某个属性发生变化时才会触发
 动画可以自动触发动态效果
 设置动画效果，必须先设置一个关键帧，关键帧设置了动画执行的每一个步骤
+```css
+.box2{
+    /* 关键帧 */
+    animation-name:test;
+    /* 执行时间 */
+    animation-duration:4s;
+    /* 延时 */
+    animation-delay:2s;
+    /* 运行方式 */
+    animation-timing-function:ease-in-out;
+    /* 执行次数  用数字就是执行几次，infinite表示无限执行*/
+    animation-iteration-count: infinite;
+    /* 动画的执行方向
+    可选值：normal 从from到to运行 每次都是这样
+           reverse 从to到from运行 每次都是这样
+           alternate 从from到to运行 重复执行动画时反向执行
+           alternate-reverse 从to到from运行 重复执行动画时反向执行
+    */
+    animation-direction:normal;
+    /* 动画的执行状态 running 默认值 动画执行
+                     paused  动画暂停*/
+    animation-play-state: paused;
+    /* 动画的填充模式 
+       可选值：none 默认值 动画执行完毕后元素回到原来位置
+               forwards 动画执行完毕后元素会停止在动画结束的位置
+               backwards 动画延时等待时，元素就会处于开始位置
+               both结合了 forwards 和 backwards */
+    animation-fill-mode:none;
 
+    /* 当然可以通过一个属性来完成所有设置 */
+    animation: test 2s 2 1s alternate;
+}
+/* 关键帧 */
+@keyframes test{
+        /* from表示动画开始的位置 也可以使用0% */
+    from{
+        margin-left:0px;
+    }
+    /* to表示动画结束的位置 也可以使用100% */
+    to{
+        margin-left:700px;
+    }
+}
+```
