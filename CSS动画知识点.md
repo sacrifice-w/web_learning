@@ -1,4 +1,4 @@
-## 1.1 过渡（transition）
+## 2.1 过渡（transition）
 通过过渡可以指定一个属性发生变化时的切换方式
 通过过渡可以创建一些非常好的效果，提升用户的体验
 - `transition-property`指定要执行过渡的属性
@@ -20,7 +20,7 @@ cubic-bezier()来指定时序函数-->(https://cubic-bezier.com)
 
 - `transition`**可以同时设置过渡相关的所有属性，只有一个要求，如果要写延迟，则两个时间中第一个是持续时间，第二个是延迟时间**
 `transition: all ease 2s 2s;`
-## 1.2 动画
+## 2.2 动画
 动画和过渡类似，不同的是过渡需要在某个属性发生变化时才会触发
 动画可以自动触发动态效果
 设置动画效果，必须先设置一个关键帧，关键帧设置了动画执行的每一个步骤
@@ -68,3 +68,34 @@ cubic-bezier()来指定时序函数-->(https://cubic-bezier.com)
     }
 }
 ```
+## 2.3 变形
+变形就是指通过CSS来改变元素的形状或位置
+- 变形不会影响到页面的布局
+- transform用来设置元素的变形效果
+  - 平移：
+     translateX()沿着x轴方向平移
+     translateY()沿着y轴方向平移
+     translateZ()沿着z轴方向平移
+     eg：`transform:translateY(-100px);`
+     平移元素的百分比是相对于自身进行计算的
+     可以通过transform来实现水平居中或者垂直居中
+     比如使用`left:50%;`来使元素往右平移50%，之后再让元素相对自身平移-50%即完全水平居中`transform:translateX(-50%);`
+- Z轴平移
+调整元素在z轴的位置，正常情况是调整元素和人眼之间的距离；距离越大，元素离人越近
+但是z轴平移属于立体效果（近大远小），默认情况下网页不支持透视，所以需要设置网页的视距`html:{perspective: 800px;}`
+## 2.4 旋转
+通过旋转可以使元素沿着x y 或z旋转指定的角度
+`transform: rotateX(45deg);`deg表示度数，turn表示圈数
+旋转的前提是设置网页的视距
+rotateX()横向边往网页的内外转
+rotateY()纵向边往网页的内外转
+totateZ()顺逆时针转
+`backface-visibility: hidden;`设置图片背面是否显示
+
+## 2.5 缩放
+通过transform来对元素进行缩放
+scaleX()水平方向缩放
+scaleY()垂直方向缩放
+scale()双方向的缩放
+`transform-origin:0px 0px;`变形的原点，默认值为center
+
