@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+                "use strict";
+
 function Person(name , age , gender){
     this.name = name;
     this.age = age;
@@ -6,7 +16,7 @@ function Person(name , age , gender){
         alert(this.name);
     };
 }
-var per = new Person("wu", 18 );
+let per = new Person("wu", 18 );
 var per1 = new Person("wu1", 8 );
 var per2 = new Person("wu2", 16 );
 var per3 = new Person("w4u", 56 );
@@ -17,7 +27,7 @@ var arr = [per,per1,per2,per3,per4];
 function getAdult(arr){
     var newarr = [];
 
-    for(i=0;i<arr.length;i++){
+    for(let i=0;i<arr.length;i++){
         if (arr[i].age>=18){
             newarr.push(arr[i]);
         }
@@ -26,3 +36,9 @@ function getAdult(arr){
 }
 var result = getAdult(arr);
 console.log(result);
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
