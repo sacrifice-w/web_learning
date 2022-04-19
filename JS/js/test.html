@@ -5,21 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script>
-        nums = [-2,1,-3,4,-1,2,1,-5,4];
-        var maxSubArray = function(nums) {
-            let pre = 0, maxAns = nums[0];
-            nums.forEach((x) => {
-            pre = Math.max(pre + x, x);
-            maxAns = Math.max(maxAns, pre);
-    });
-    return maxAns;
 
-};
-console.log(maxSubArray(nums));
-    </script>
 </head>
 <body>
-    
+    <button id="btn"> nihao</button>
+    <script>
+        let btn = document.getElementById("btn");
+        btn.onclick = function(){
+            alert("hello");
+        };
+    </script>
 </body>
 </html>
