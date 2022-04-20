@@ -5,15 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
+    <script>
+        function Accumulator(startingValue){
+            this.value = startingValue;
+            this.read = function(){
+                this.value +=+prompt("value is",0); 
+            };
+        }
+let accumulator = new Accumulator(1); // 初始值 1
+accumulator.read(); // 添加用户输入的 value
+accumulator.read(); // 添加用户输入的 value
+alert(accumulator.value); // 显示这些值的总和
+    </script>
 </head>
 <body>
-    <button id="btn"> nihao</button>
-    <script>
-        let btn = document.getElementById("btn");
-        btn.onclick = function(){
-            alert("hello");
-        };
-    </script>
+    
 </body>
 </html>
