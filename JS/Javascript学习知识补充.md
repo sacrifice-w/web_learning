@@ -11,6 +11,25 @@
 声明一个常数（不变）变量，可以使用 `const` 而非 `let`,常量不能被修改，否则会报错
 一个普遍的做法是将常量用作别名，以便记住那些在执行之前就已知的难以记住的值。例如使用大写字母和下划线来命名这些常量。
 
+#### let 和 var的区别
+var没有块级作用域，它只存在于函数作用域和全局作用域，所以如果有一个代码块的话，等于var会创建一个全局变量。
+而let只会存在在代码块内。
+```js
+if (true) {
+  var test = true; // 使用 "var" 而不是 "let"
+}
+alert(test); // true，变量在 if 结束后仍存在
+
+if (true) {
+  let test = true; // 使用 "let"
+}
+alert(test); // ReferenceError: test is not defined
+```
+**var能够穿透if，for和其它代码块。**
+
+如果我们用 let 在同一作用域下将同一个变量声明两次，则会出现错误。
+使用 var，我们可以重复声明一个变量，不管多少次都行。如果我们对一个已经声明的变量使用var，这条新的声明语句会被忽略。
+**var 变量声明在函数开头就会被处理（脚本启动对应全局变量）。**
 ###  BigInt
 numbe类型无法大于大于 (2^53-1)（即 9007199254740991），或小于 -(2^53-1) 的整数。这是其内部表示形式导致的技术限制。
 可以通过将 n 附加到整数字段的末尾来创建 BigInt 值。
@@ -504,3 +523,62 @@ reviver:可选的函数 function(key,value)，该函数将为每个 (key, value)
 JSON 不支持注释。向 JSON 添加注释无效。
 还有另一种名为 JSON5 的格式，它允许未加引号的键，也允许注释等。但这是一个独立的库，不在语言的规范中。
 常规的 JSON 格式严格，并不是因为它的开发者很懒，而是为了实现简单，可靠且快速地实现解析算法。
+
+
+### 箭头函数
+`let func = (arg1, arg2, ..., argN) => expression;`
+箭头函数左边是接受的参数，并对右边求值并返回
+如果我们只有一个参数，还可以省略掉参数外的圆括号，使代码更短。`let double = n => n * 2;`
+如果没有参数，括号则是空的（但括号必须保留）：`let sayHi = () => alert("Hello!");`
+
+**箭头函数对于简单的单行行为（action）来说非常方便，尤其是当我们懒得打太多字的时候。**
+带花括号：(...args) => { body } — 花括号允许我们在函数中编写多个语句，但是我们需要显式地 return 来返回一些内容。
+```js
+let sum = (a, b) => {  // 花括号表示开始一个多行函数
+  let result = a + b;
+  return result; // 如果我们使用了花括号，那么我们需要一个显式的 “return”
+};
+
+alert( sum(1, 2) ); // 3
+```
+
+**箭头函数没有 this。如果访问 this，则会从外部获取。**
+**不具有 this 自然也就意味着另一个限制：箭头函数不能用作构造器（constructor）。不能用 new 调用它们。**
+**箭头函数也没有 arguments 变量。**
+
+### 调度setTimeout & setInterval
+有时我们并不想立即执行一个函数，而是等待特定一段时间之后再执行。这就是所谓的“计划调用（scheduling a call）”。
+setTimeout 允许我们将函数推迟到一段时间间隔之后再执行。
+setInterval 允许我们重复运行一个函数，从一段时间间隔之后开始运行，之后以该时间间隔连续重复运行该函数。
+`let timerId = setTimeout(func|code, [delay], [arg1], [arg2], ...)`
+`func|code`想要执行的函数或代码字符串。 一般传入的都是函数。由于某些历史原因，支持传入代码字符串，但是不建议这样做。
+`delay`执行前的延时，以毫秒为单位（1000 毫秒 = 1 秒），默认值是 0；
+`arg1，arg2…`要传入被执行函数（或代码字符串）的参数列表（IE9 以下不支持）
+```js
+function sayHi() {
+  alert('Hello');
+}
+
+setTimeout(sayHi, 1000);
+```
+需要注意的是，setTimeout()里的function不能加()，以上面为例，需要使用sayHi而不能使用sayHi()，因为这个方法是对函数的引用。
+
+**任何 setTimeout 都只会在当前代码执行完毕之后才会执行。**
+
+**可以用clearTimeout来取消调度**
+setTimeout 在调用时会返回一个“定时器标识符（timer identifier）”，在我们的例子中是 timerId，我们可以使用它来取消执行。
+
+`setInterval`方法和`setTimeout`的语法相同：`let timerId = setInterval(func|code, [delay], [arg1], [arg2], ...)`
+所有参数的意义也是相同的。不过与 setTimeout 只执行一次不同，setInterval 是每间隔给定的时间周期性执行。
+想要阻止后续调用，我们需要调用 clearInterval(timerId)。
+```js
+// 每 2 秒重复一次
+let timerId = setInterval(() => alert('tick'), 2000);
+// 5 秒之后停止
+setTimeout(() => { clearInterval(timerId); alert('stop'); }, 5000);
+```
+在大多数浏览器中，包括Chrome和Firefox，在显示alert/confirm/prompt弹窗时，内部的定时器仍旧会继续“嘀嗒”。
+所以，在运行上面的代码时，如果在一定时间内没有关掉alert弹窗，那么在你关闭弹窗后，下一个 alert 会立即显示。两次alert之间的时间间隔将小于2秒。
+
+**嵌套的 setTimeout 能够精确地设置两次执行之间的延时，而 setInterval 却不能。**
+
