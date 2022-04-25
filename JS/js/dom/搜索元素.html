@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <form name="search">
+        <label>Search the site:
+            <input type="text" name="search" />
+        </label>
+        <input type="submit" value="Search!" />
+    </form>
+    <hr />
+    <form name="search-person">
+        Search the visitors:
+        <table id="age-table">
+            <tr>
+                <td>Age:</td>
+                <td id="age-list">
+                    <label>
+                        <input type="radio" name="age" value="young" />less than 18</label>
+                    <label>
+                        <input type="radio" name="age" value="mature" />18-50</label>
+                    <label>
+                        <input type="radio" name="age" value="senior" />more than
+                        50</label>
+                </td>
+            </tr>
+            <tr>
+                <td>Additionally:</td>
+                <td>
+                    <input type="text" name="info[0]" />
+                    <input type="text" name="info[1]" />
+                    <input type="text" name="info[2]" />
+                </td>
+            </tr>
+        </table>
+        <input type="submit" value="Search!" />
+    </form>
+    <script>
+        let table = document.getElementById('age-table');//带有 id="age-table" 的表格。
+        table.querySelectorAll('#age-table label');//表格内的所有 label 元素（应该有三个）。
+        table.querySelector('td');//表格中的第一个 td（带有 “Age” 字段）。
+        document.querySelector('form[name="search"]');
+        form.querySelector('input');//表单中的第一个 input。
+        // 表单中最后一个input
+        let inputs = form.querySelectorAll('input') // 查找所有 input
+        inputs[inputs.length-1] // 取出最后一个
+
+
+    </script>
+</body>
+
+</html>
