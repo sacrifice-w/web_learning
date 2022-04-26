@@ -98,7 +98,8 @@ CSSOM 规范
 - **Event Listeners** — 查看附加到 DOM 元素的事件侦听器。 
 
 当然，在浏览器开发工具中，还能够通过与控制台交互来给页面中的元素添加一些js代码和命令。
-
+`console.log(elem)` 显示元素的 DOM 树。
+`console.dir(elem)` 将元素显示为 DOM 对象，非常适合探索其属性。
 # 三、dom学习
 ## 3.1 dom的遍历
 ### 3.1.1 顶部节点
@@ -307,3 +308,351 @@ getElementsByClassName	|class|	✔	|✔
 
 用来检查子级与父级之间关系的方法：
 如果 elemB 在 elemA 内（elemA 的后代）或者 elemA==elemB，elemA.contains(elemB) 将返回 true。
+
+## 3.3 节点属性
+- EventTarget — 是根的“抽象（abstract）”类。该类的对象从未被创建。它作为一个基础，以便让所有 DOM 节点都支持所谓的“事件（event）”。
+- Node — 也是一个“抽象”类，充当 DOM 节点的基础。它提供了树的核心功能：parentNode，nextSibling，childNodes 等（它们都是 getter）。Node 类的对象从未被创建。但是有一些继承自它的具体的节点类，例如：文本节点的 Text，元素节点的 Element，以及更多异域（exotic）类，例如注释节点的 Comment。
+- Element — 是 DOM 元素的基本类。它提供了元素级的导航（navigation），例如 nextElementSibling，children，以及像 getElementsByTagName 和 querySelector 这样的搜索方法。浏览器中不仅有 HTML，还会有 XML 和 SVG。Element 类充当更多特定类的基本类：SVGElement，XMLElement 和 HTMLElement。
+- HTMLElement — 最终是所有 HTML 元素的基本类。各种 HTML 元素均继承自它：
+  - HTMLInputElement — `<input>` 元素的类，
+  - HTMLBodyElement —`<body>` 元素的类，
+  - HTMLAnchorElement — `<a>` 元素的类，
+
+还有很多其他标签具有自己的类，可能还具有特定的属性和方法，而一些元素，如 `<span>、<section>、<article>` 等，没有任何特定的属性，所以它们是 HTMLElement 类的实例。
+
+**给定节点的全部属性和方法都是继承的结果。**
+
+- HTMLInputElement — 该类提供特定于输入的属性，
+- HTMLElement — 它提供了通用（common）的 HTML 元素方法（以及 getter 和 setter）
+- Element — 提供通用（generic）元素方法，
+- Node — 提供通用 DOM 节点属性，
+- EventTarget — 为事件（包括事件本身）提供支持，
+- ……最后，它继承自 Object，因为像 hasOwnProperty 这样的“普通对象”方法也是可用的。
+
+可以通过回调来查看 DOM 节点类名,**constructor.name** 就是它的名称
+`alert( document.body.constructor.name ); // HTMLBodyElement`
+或者可以使用**toString**方法
+可以使用 **instanceof** 来检查继承：
+
+在规范中，DOM 类不是使用 JavaScript 来描述的，而是一种特殊的 **接口描述语言**（Interface description language），简写为 **IDL**，它通常很容易理解。
+在 IDL 中，所有属性以其类型开头。例如，DOMString 和 boolean 等。
+```js
+// 定义 HTMLInputElement
+// 冒号 ":" 表示 HTMLInputElement 继承自 HTMLElement
+interface HTMLInputElement: HTMLElement {
+  // 接下来是 <input> 元素的属性和方法
+
+  // "DOMString" 表示属性的值是字符串
+  attribute DOMString accept;
+  attribute DOMString alt;
+  attribute DOMString autocomplete;
+  attribute DOMString value;
+
+  // 布尔值属性（true/false）
+  attribute boolean autofocus;
+  ...
+  // 现在方法："void" 表示方法没有返回值
+  void select();
+  ...
+}
+```
+
+### 3.3.1 nodetype
+nodeType属性时一种古老的用来获取DOM节点类型的方法
+它有一个数值型值（numeric value）：
+对于元素节点 elem.nodeType == 1，
+对于文本节点 elem.nodeType == 3，
+对于 document 对象 elem.nodeType == 9，
+在 规范 中还有一些其他值。
+```html
+<body>
+  <script>
+  let elem = document.body;
+
+  // 让我们检查一下它是什么？
+  alert(elem.nodeType); // 1 => element
+
+  // 第一个子节点是
+  alert(elem.firstChild.nodeType); // 3 => text
+
+  // 对于 document 对象，类型是 9
+  alert( document.nodeType ); // 9
+  </script>
+</body>
+```
+
+在现代脚本中，我们可以使用**instanceof**和其他基于类的检查方法来查看节点类型，但有时 nodeType 可能更简单。我们只能读取 nodeType 而不能修改它。
+
+### 3.3.2 标签
+给定一个 DOM 节点，我们可以从 **nodeName** 或者 **tagName** 属性中读取它的标签名：
+- tagName 属性仅适用于 Element 节点。
+- nodeName 是为任意 Node 定义的：
+  - 对于元素，它的意义与 tagName 相同。
+  - 对于其他节点类型（text，comment 等），它拥有一个对应节点类型的字符串。
+
+tagName仅受**元素节点**支持（因为它起源于Element类），而nodeName则可以说明其他节点类型。
+
+**标签名称始终是大写的，除非是在 XML 模式下**
+
+### 3.3.3 内容 innerHTML
+innerHTML 属性允许将元素中的 HTML 获取为字符串形式。
+我们也可以修改它。因此，它是更改页面最有效的方法之一。
+```html
+<body>
+  <p>A paragraph</p>
+  <div>A div</div>
+  <script>
+    alert( document.body.innerHTML ); // 读取当前内容
+    document.body.innerHTML = 'The new BODY!'; // 替换它
+  </script>
+</body>
+<!-- 输出显示 The new BODY! ，通过innerHTML修改了页面内容-->
+```
+如果 innerHTML 将一个`<script>`标签插入到 document 中 — 它会成为 HTML 的一部分，但是不会执行。
+
+可以使用`elem.innerHTML+="more html"`将 HTML 附加到元素上。
+但是这是一种非常危险的方法，因为它会先将旧的内容删除，再写入新的内容，所以会产生重新加载等问题，使用需要谨慎。
+### 3.3.4 元素的完整HTML
+outerHTML 属性包含了元素的完整 HTML。就像 innerHTML 加上元素本身一样。
+```html
+<div id="elem">Hello <b>World</b></div>
+<script>
+  alert(elem.outerHTML); // <div id="elem">Hello <b>World</b></div>
+</script>
+```
+
+**与 innerHTML 不同，写入 outerHTML 不会改变元素。而是在 DOM 中替换它。**
+```html
+<div>Hello, world!</div>
+<script>
+  let div = document.querySelector('div');
+  // 使用 <p>...</p> 替换 div.outerHTML
+  div.outerHTML = '<p>A new element</p>'; // (*)
+  // 蛤！'div' 还是原来那样！
+  alert(div.outerHTML); // <div>Hello, world!</div> (**)
+</script>
+```
+**谨慎谨慎再谨慎！！！**
+### 3.3.5 文本节点内容
+innerHTML 属性仅对元素节点有效。
+其他节点类型，例如文本节点，具有它们的对应项：**nodeValue** 和**data**属性。这两者在实际使用中几乎相同，只有细微规范上的差异。因此，我们将使用 data，因为它更短。
+读取文本节点和注释节点的内容的示例：
+```html
+<body>
+  Hello
+  <!-- Comment -->
+  <script>
+    let text = document.body.firstChild;
+    alert(text.data); // Hello
+    let comment = text.nextSibling;
+    alert(comment.data); // Comment
+  </script>
+</body>
+```
+**textContent** 提供了对元素内的 文本 的访问权限：仅文本，去掉所有`<tags>`。
+```html
+<div id="news">
+  <h1>Headline!</h1>
+  <p>Martians attack people!</p>
+</div>
+<script>
+  // Headline! Martians attack people!
+  alert(news.textContent);
+</script>
+```
+**写入 textContent 要有用得多，因为它允许以“安全方式”写入文本。**
+### 3.3.6 更多属性
+“hidden” 特性（attribute）和 DOM 属性（property）指定元素是否可见。
+从技术上来说，hidden 与 style="display:none" 做的是相同的事。但 hidden 写法更简洁。
+这里有一个 blinking 元素：
+```html
+<div id="elem">A blinking element</div>
+<script>
+  setInterval(() => elem.hidden = !elem.hidden, 1000);
+</script>
+```
+
+- value — `<input>，<select> 和 <textarea>`（HTMLInputElement，HTMLSelectElement……）的 value。
+- href — `<a href="...">`（HTMLAnchorElement）的 href。
+- id — 所有元素（HTMLElement）的 “id” 特性（attribute）的值。
+```html
+<input type="text" id="elem" value="value">
+<script>
+  alert(elem.type); // "text"
+  alert(elem.id); // "elem"
+  alert(elem.value); // value
+</script>
+```
+
+## 3.4 特性和属性(attributes & properties)
+当浏览器加载页面时，它会“读取”（或者称之为：“解析”）HTML 并从中生成 DOM 对象。对于元素节点，大多数标准的 HTML 特性（attributes）会自动变成 DOM 对象的属性（properties）。
+attribute 和 property 两词意思相近，为作区分，全文将 attribute 译为“特性”，property 译为“属性”。
+
+### 3.4.1 DOM属性
+DOM 节点是常规的 JavaScript 对象。我们可以 alert 它们。
+**可以创建新的属性**:
+```js
+document.body.myData = {
+  name: 'Caesar',
+  title: 'Imperator'
+};
+
+alert(document.body.myData.title); // Imperator
+```
+**可以添加新的方法**:
+```js
+document.body.sayTagName = function() {
+  alert(this.tagName);
+};
+
+document.body.sayTagName(); // BODY（这个方法中的 "this" 的值是 document.body）
+```
+**可以修改内建属性的原型**，例如修改 Element.prototype 为所有元素添加一个新方法:
+```js
+Element.prototype.sayHi = function() {
+  alert(`Hello, I'm ${this.tagName}`);
+};
+document.documentElement.sayHi(); // Hello, I'm HTML
+document.body.sayHi(); // Hello, I'm BODY
+```
+DOM 属性和方法的行为就像常规的 Javascript 对象一样：
+- 它们可以有很多值。
+- 它们是大小写敏感的（要写成 elem.nodeType，而不是 elem.NoDeTyPe）。
+- DOM属性是多类型的，其大部分属性都是字符串类型，但也存在个例.
+  - `input.checked`属性是Boolean型
+  - `style`特性是字符串类型，但其属性是一个对象
+  - `href`的属性一直是一个完整的URL，即使该特性包含一个相对路径或者包含一个 #hash。
+### 3.4.2 HTML特性
+在HTML中，标签可能拥有特性（attributes）。当浏览器解析HTML文本，并根据标签创建DOM对象时，浏览器会辨别**标准的**特性并以此创建DOM属性。
+所以，当一个元素有id或其他**标准的**特性，那么就会生成对应的DOM属性。但是**非标准**的特性则不会。
+```html
+<body id="test" something="non-standard">
+  <script>
+    alert(document.body.id); // test
+    // 非标准的特性没有获得对应的属性
+    alert(document.body.something); // undefined
+  </script>
+</body>
+```
+**一个元素的标准的特性对于另一个元素可能是未知的。**
+"type" 是`<input>`的一个标准的特性（HTMLInputElement），但对于`<body>`（HTMLBodyElement）来说则不是。
+```html
+<body id="body" type="...">
+  <input id="input" type="text">
+  <script>
+    alert(input.type); // text
+    alert(body.type); // undefined：DOM 属性没有被创建，因为它不是一个标准的特性
+  </script>
+</body>
+```
+
+所有特性都可以通过使用以下方法进行访问：
+- `elem.hasAttribute(name)` — 检查特性是否存在。
+- `elem.getAttribute(name)` — 获取这个特性值。
+- `elem.setAttribute(name, value)` — 设置这个特性值。
+- `elem.removeAttribute(name)` — 移除这个特性。
+- `elem.attributes` 读取所有特性：属于内建 Attr 类的对象的集合，具有 name 和 value 属性。
+
+```html
+<body something="non-standard">
+  <script>
+    alert(document.body.getAttribute('something')); // 非标准的
+  </script>
+</body>
+```
+
+HTML 特性有以下几个特征：
+- 它们的名字是大小写不敏感的（id 与 ID 相同）。
+- 它们的值总是字符串类型的。
+
+```html
+<body>
+  <div id="elem" about="Elephant"></div>
+  <script>
+    alert( elem.getAttribute('About') ); // (1) 'Elephant'，读取
+    elem.setAttribute('Test', 123); // (2) 写入
+    alert( elem.outerHTML ); // (3) 查看特性是否在 HTML 中（在）
+    for (let attr of elem.attributes) { // (4) 列出所有
+      alert( `${attr.name} = ${attr.value}` );
+    }
+  </script>
+</body>
+```
+1. getAttribute('About') — 这里的第一个字母是大写的，但是在 HTML 中，它们都是小写的。但这没有影响：特性的名称是大小写不敏感的。
+1. 我们可以将任何东西赋值给特性，但是这些东西会变成字符串类型的。所以这里我们的值为 "123"。
+1. 所有特性，包括我们设置的那个特性，在 outerHTML 中都是可见的。
+1. attributes 集合是可迭代对象，该对象将所有元素的特性（标准和非标准的）作为 name 和 value 属性存储在对象中。
+
+### 3.4.3 属性、特性同步
+当一个标准的特性被改变，对应的属性也会自动更新，（除了几个特例）反之亦然。
+
+`input.value`只能从特性同步到属性，反过来则不行：
+<input>
+<script>
+  let input = document.querySelector('input');
+  // 特性 => 属性
+  input.setAttribute('value', 'text');
+  alert(input.value); // text
+  // 这个操作无效，属性 => 特性
+  input.value = 'newValue';
+  alert(input.getAttribute('value')); // text（没有被更新！）
+</script>
+
+- 改变特性值value会更新属性。
+- 但是属性的更改不会影响特性。
+
+### 3.4.4 非标准属性，dataset
+非标准的特性常常用于将自定义的数据从 HTML 传递到 JavaScript，或者用于为 JavaScript “标记” HTML 元素。
+```html
+<!-- 标记这个 div 以在这显示 "name" -->
+<div show-info="name"></div>
+<!-- 标记这个 div 以在这显示 "age" -->
+<div show-info="age"></div>
+<script>
+  // 这段代码找到带有标记的元素，并显示需要的内容
+  let user = {
+    name: "Pete",
+    age: 25
+  };
+  for(let div of document.querySelectorAll('[show-info]')) {
+    // 在字段中插入相应的信息
+    let field = div.getAttribute('show-info');
+    div.innerHTML = user[field]; // 首先 "name" 变为 Pete，然后 "age" 变为 25
+  }
+</script>
+```
+
+**所有以 “data-” 开头的特性均被保留供程序员使用。它们可在 dataset 属性中使用。**
+例如，如果一个elem有一个名为 "data-about" 的特性，那么可以通过`elem.dataset.about`取到它。
+```html
+<body data-about="Elephants">
+<script>
+  alert(document.body.dataset.about); // Elephants
+</script>
+```
+像`data-order-state`这样的多词特性可以以驼峰式进行调用：`dataset.orderState`。
+```html
+<style>
+  .order[data-order-state="new"] {
+    color: green;
+  }
+  .order[data-order-state="pending"] {
+    color: blue;
+  }
+  .order[data-order-state="canceled"] {
+    color: red;
+  }
+</style>
+<div id="order" class="order" data-order-state="new">
+  A new order.
+</div>
+<script>
+  // 读取
+  alert(order.dataset.orderState); // new
+  // 修改
+  order.dataset.orderState = "pending"; // (*)
+  //这里的输出会是蓝色
+</script>
+```
+使用`data-*`特性是一种合法且安全的传递自定义数据的方式。
+请注意，我们不仅可以读取数据，还可以修改数据属性（data-attributes）。然后 CSS 会更新相应的视图：在上面这个例子中的最后一行 (*) 将颜色更改为了蓝色。

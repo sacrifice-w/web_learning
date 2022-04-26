@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <div data-widget-name="menu">Choose the genre</div>
+
+    <script>
+        let elem = document.querySelector('[data-widget-name]');
+        // 获取非标准属性中的值
+        alert(elem.dataset.widgetName);
+        alert(elem.getAttribute('data-widget-name'));
+    </script>
+</body>
+
+</html>
