@@ -449,7 +449,7 @@ innerHTML 属性仅对元素节点有效。
   </script>
 </body>
 ```
-**textContent** 提供了对元素内的 文本 的访问权限：仅文本，去掉所有`<tags>`。
+**textContent** 提供了对元素内的文本的访问权限：仅文本，去掉所有`<tags>`。
 ```html
 <div id="news">
   <h1>Headline!</h1>
@@ -656,3 +656,153 @@ HTML 特性有以下几个特征：
 ```
 使用`data-*`特性是一种合法且安全的传递自定义数据的方式。
 请注意，我们不仅可以读取数据，还可以修改数据属性（data-attributes）。然后 CSS 会更新相应的视图：在上面这个例子中的最后一行 (*) 将颜色更改为了蓝色。
+
+### 3.5 修改文档（document）
+要创建 DOM 节点，这里有两种方法：
+`document.createElement(tag)` --> 用给定的标签创建一个**新元素节点（element node）**
+`document.createTextNode(text)` --> 用给定的文本创建一个**文本节点**
+```js
+// 1. 创建 <div> 元素
+let div = document.createElement('div');
+// 2. 将元素的类设置为 "alert"
+div.className = "alert";
+// 3. 填充消息内容
+div.innerHTML = "<strong>Hi there!</strong> You've read an important message.";
+```
+通过这个方法，已经创建了元素，但是它目前在名为div的变量内，尚未在页面中，所以无法被看到。
+
+如果想要使其在页面中显示出来，可以使用`append`方法
+例如：`document.body.append(div)`
+
+当然，**可以在其他任何元素上调用append方法**
+例如，通过调用`div.append(anotherElement)`，我们便可以在`<div>`末尾添加一些内容。
+
+元素插入方法：
+- `node.append(...nodes or strings)` —— 在 node 末尾 插入节点或字符串，
+- `node.prepend(...nodes or strings)` —— 在 node 开头 插入节点或字符串，
+- `node.before(...nodes or strings)` —— 在 node 前面 插入节点或字符串，
+- `node.after(...nodes or strings)` —— 在 node 后面 插入节点或字符串，
+- `node.replaceWith(...nodes or strings)` —— 将 node 替换为给定的节点或字符串。
+
+**这些方法的参数可以是一个要插入的任意的 DOM 节点列表，或者文本字符串（会被自动转换成文本节点）。**
+```html
+<ol id="ol">
+  <li>0</li>
+  <li>1</li>
+  <li>2</li>
+</ol>
+<script>
+  ol.before('before'); // 将字符串 "before" 插入到 <ol> 前面
+  ol.after('after'); // 将字符串 "after" 插入到 <ol> 后面
+
+  let liFirst = document.createElement('li');
+  liFirst.innerHTML = 'prepend';
+  ol.prepend(liFirst); // 将 liFirst 插入到 <ol> 的最开始
+
+  let liLast = document.createElement('li');
+  liLast.innerHTML = 'append';
+  ol.append(liLast); // 将 liLast 插入到 <ol> 的最末尾
+</script>
+```
+因此，最终列表将为：
+```html
+before
+<ol id="ol">
+  <li>prepend</li>
+  <li>0</li>
+  <li>1</li>
+  <li>2</li>
+  <li>append</li>
+</ol>
+after
+```
+```html
+<ul id="ul"></ul>
+<script>
+function getListContent() {
+  let result = [];
+
+  for(let i=1; i<=3; i++) {
+    let li = document.createElement('li');
+    li.append(i);
+    result.push(li);
+  }
+  return result;
+}
+ul.append(...getListContent()); // append + "..." operator = friends!
+</script>
+```
+这里出现了一个append(...)的方法，感觉这个方法应该是用来添加数组中内容的
+### 3.5.1 以html形式插入
+通过`elem.insertAdjacentHTML(where, html)`来插入html
+该方法的第一个参数是**代码字（code word）**，指定相对于elem的插入位置。必须为以下之一：
+- `"beforebegin"` — 将 html 插入到 elem 前插入，
+- `"afterbegin"` — 将 html 插入到 elem 开头，
+- `"beforeend"` — 将 html 插入到 elem 末尾，
+- `"afterend"` — 将 html 插入到 elem 后。
+第二个参数是**HTML字符串**，该字符串会被“作为 HTML” 插入。
+```html
+<div id="div"></div>
+<script>
+  div.insertAdjacentHTML('beforebegin', '<p>Hello</p>');
+  div.insertAdjacentHTML('afterend', '<p>Bye</p>');
+</script>
+```
+结果为：
+```html
+<p>Hello</p>
+<div id="div"></div>
+<p>Bye</p>
+```
+
+`elem.insertAdjacentText(where, text)` — 语法一样，但是将 text 字符串“作为文本”插入而不是作为 HTML，
+`elem.insertAdjacentElement(where, elem)` — 语法一样，但是插入的是一个元素。
+它们的存在主要是为了使语法“统一”。
+实际上，大多数时候只使用`insertAdjacentHTML`。因为对于元素和文本，我们有`append/prepend/before/after`方法。它们也可以用于插入节点/文本片段，但写起来更短。
+### 3.5.2 节点移除
+想要移除一个节点，可以使用`node.remove()`。
+```html
+<script>
+  let div = document.createElement('div');
+  div.className = "alert";
+  div.innerHTML = "<strong>Hi there!</strong> You've read an important message.";
+  document.body.append(div);
+  setTimeout(() => div.remove(), 1000);
+</script>
+```
+请注意：如果我们要将一个元素移动到另一个地方，则无需将其从原来的位置中删除。
+**所有插入方法都会自动从旧位置删除该节点。**
+```html
+<div id="first">First</div>
+<div id="second">Second</div>
+<script>
+  // 无需调用 remove
+  second.after(first); // 获取 #second，并在其后面插入 #first
+  //进行了元素交换
+</script>
+```
+### 3.5.3 克隆节点(cloneNode)
+调用`elem.cloneNode(true)`来创建元素的一个“深”克隆 — 具有所有特性（attribute）和子元素。
+如果我们调用`elem.cloneNode(false)`，那克隆就不包括子元素。
+```html
+<div class="alert" id="div">
+  <strong>Hi there!</strong> You've read an important message.
+</div>
+<script>
+  let div2 = div.cloneNode(true); // 克隆消息
+  div2.querySelector('strong').innerHTML = 'Bye there!'; // 修改克隆
+  div.after(div2); // 在已有的 div 后显示克隆
+</script>
+```
+
+### 3.5.4 一些古老的方法
+`parentElem.appendChild(node)`将node加为parentElem的最后一个子元素。
+`parentElem.insertBefore(node, nextSibling)`在parentElem的nextSibling前插入node。
+`parentElem.replaceChild(node, oldChild)`将parentElem的后代中的oldChild替换为node。
+`parentElem.removeChild(node)`从parentElem中删除node（假设node为parentElem的后代）。
+
+一个非常古老的向网页添加内容的方法：`document.write`
+**其调用时只在页面加载时工作。**
+要在页面加载完成之前将 HTML 附加到页面。
+页面加载完成后，这样的调用将会擦除文档。多见于旧脚本。
+
