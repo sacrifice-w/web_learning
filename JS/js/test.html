@@ -2,21 +2,8 @@
 <head>
 </head>
 <body>
-    <ul id="ul"></ul>
 <script>
-function getListContent() {
-  let result = [];
-
-  for(let i=1; i<=3; i++) {
-    let li = document.createElement('li');
-    li.append(i);
-    result.push(li);
-  }
-
-  return result;
-}
-
-ul.append(...getListContent()); // append + "..." operator = friends!
+  document.body.style.backgroundColor = prompt('background color?', 'green');
 </script>
 
 </body>

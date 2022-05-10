@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+</head>
+
+<body>
+    <div class="notification">'hello'</div>
+    <script>
+        let notification = document.querySelector('.notification');
+        // let notification = document.getElementsByClassName('notification');
+        notification.style.marginTop = '10px';
+        notification.style.marginLeft = '10px';
+        setTimeout(() => notification.remove(),2000)
+    </script>
+
+    <!-- <script>
+        function showNotification({ top = 0, right = 0, className, html }) {
+
+            let notification = document.createElement('div');
+            notification.className = "notification";
+            if (className) {
+                notification.classList.add(className);
+            }
+
+            notification.style.marginTop = top + 'px';
+            notification.style.marginLeft = right + 'px';
+
+            notification.innerHTML = html;
+            document.body.append(notification);
+
+            setTimeout(() => notification.remove(), 1500);
+        }
+
+        // test it
+        let i = 1;
+        setInterval(() => {
+            showNotification({
+                top: 100,
+                right: 100,
+                html: 'Hello ' + i++,
+                className: "welcome"
+            });
+        }, 2000);
+    </script> -->
+
+
+</body>
+
+</html>

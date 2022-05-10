@@ -806,3 +806,189 @@ ul.append(...getListContent()); // append + "..." operator = friends!
 要在页面加载完成之前将 HTML 附加到页面。
 页面加载完成后，这样的调用将会擦除文档。多见于旧脚本。
 
+## 3.6 样式和类
+**更改类是脚本中最常见的操作之一。**
+对于类，引入了看起来类似的属性 "className"：elem.className 对应于 "class" 特性（attribute）。
+```html
+<body class="main page">
+  <script>
+    alert(document.body.className); // main page
+  </script>
+</body>
+```
+如果我们对`elem.className`进行赋值，它将**替换**类中的**整个字符串**。有时，这正是我们所需要的，但通常我们希望添加/删除单个类。
+
+`elem.classList`是一个特殊的对象,它具有 add/remove/toggle 单个类的方法。
+```html
+<body class="main page">
+  <script>
+    // 添加一个 class
+    document.body.classList.add('article');
+    alert(document.body.className); // main page article
+  </script>
+</body>
+```
+因此，我们既可以使用`className`对完整的类字符串进行操作，也可以使用使用`classList`对单个类进行操作。我们选择什么取决于我们的需求。
+
+`classList` 的方法：
+- `elem.classList.add/remove(class)` — 添加/移除类。
+- `elem.classList.toggle(class)` — 如果类不存在就添加类，存在就移除它。
+- `elem.classList.contains(class)` — 检查给定类，返回 true/false。
+
+此外，classList 是可迭代的，因此，我们可以像下面这样列出所有类：
+```html
+<body class="main page">
+  <script>
+    for (let name of document.body.classList) {
+      alert(name); // main，然后是 page
+    }
+  </script>
+</body>
+```
+
+### 3.6.1 元素样式
+elem.style 属性是一个对象，它对应于 "style" 特性（attribute）中所写的内容。
+elem.style.width="100px" 的效果等价于我们在 style 特性中有一个 width:100px 字符串。
+
+对于多词（multi-word）属性，使用驼峰式 camelCase：
+```
+background-color  => elem.style.backgroundColor
+z-index           => elem.style.zIndex
+border-left-width => elem.style.borderLeftWidth
+```
+
+```js
+document.body.style.backgroundColor = prompt('background color?', 'green');
+```
+
+像`-moz-border-radius`和`-webkit-border-radius`这样的浏览器前缀属性，也遵循同样的规则：
+连字符`-`表示大写。
+```js
+button.style.MozBorderRadius = '5px';
+button.style.WebkitBorderRadius = '5px';
+```
+
+### 3.6.2 重置样式属性
+有时我们想要分配一个样式属性，稍后移除它。
+例如，为了隐藏一个元素，我们可以设置`elem.style.display = "none"`。
+然后，稍后我们可能想要移除`style.display`，就像它没有被设置一样。这里不应该使用`delete elem.style.display`，而应该使用`elem.style.display = ""`将其赋值为空。
+```js
+// 如果我们运行这段代码，<body> 将会闪烁
+document.body.style.display = "none"; // 隐藏
+setTimeout(() => document.body.style.display = "", 1000); // 恢复正常
+```
+如果我们将display设置为空字符串，那么浏览器通常会应用CSS类以及内建样式，**就好像根本没有这样的style属性一样**。
+
+用`style.cssText`进行完全的重写
+这是一种很危险的属性，因为它会删除现有的样式再进行替换，所以很少用
+可以通过设置一个特性（attribute）来实现同样的效果：`div.setAttribute('style', 'color: red...')`。
+
+### 3.6.3 计算样式getComputedStyle
+style 属性仅对 "style" 特性（attribute）值起作用，而没有任何CSS级联（cascade）。
+因此我们无法使用`elem.style`读取来自CSS类的任何内容。
+例如，这里的 style 看不到 margin：
+```html
+<head>
+  <style> body { color: red; margin: 5px } </style>
+</head>
+<body>
+  The red text
+  <script>
+    alert(document.body.style.color); // 空的
+    alert(document.body.style.marginTop); // 空的
+  </script>
+</body>
+```
+
+通过`getComputedStyle(element, [pseudo])`来获取元素的样式
+**element**： 需要被读取样式值的元素
+**pseudo**： 伪元素，例如`::before`。空字符串或无参数则意味着元素本身。
+
+结果是一个具有样式属性的对象，像`elem.style`，但现在对于所有的 CSS 类来说都是如此
+```html
+<head>
+  <style> body { color: red; margin: 5px } </style>
+</head>
+<body>
+
+  <script>
+    let computedStyle = getComputedStyle(document.body);
+    // 现在我们可以读取它的 margin 和 color 了
+    alert( computedStyle.marginTop ); // 5px
+    alert( computedStyle.color ); // rgb(255, 0, 0)
+  </script>
+
+</body>
+```
+
+## 3.7 元素大小和滚动
+
+### 3.7.1 关于祖先的属性
+`offsetParent` 定位最近的祖先：
+1. CSS 定位的（position 为 absolute，relative 或 fixed），
+1. 或 `<td>，<th>，<table>`，
+1. 或 `<body>`。
+
+属性`offsetLeft/offsetTop`提供相对于`offsetParent`左上角的 x/y 坐标。
+![file](./picture/1.jpg)
+
+有以下几种情况下, `offsetParent`的值为 null：
+对于未显示的元素（display:none 或者不在文档中）。
+对于 `<body>` 与 `<html>`。
+对于带有`position:fixed`的元素。
+
+### 3.7.2 关于元素本身的属性
+#### 3.7.2.1 元素外部的属性
+`offsetWidth/Height`这两个属性是最简单的。它们提供了元素的“外部” width/height。或者，换句话说，它的**完整大小**（包括边框）。
+**对于未显示的元素，几何属性为 0/null**
+#### 3.7.2.2 元素本身的属性
+如果需要测量元素的**边框**(border)可以使用：
+`clientLeft` -> 测量左边框宽度
+`clientTop` -> 测量上边框宽度
+这些属性不是边框的 width/height，而是**内侧与外侧的相对坐标**。
+当文档从右到左显示（操作系统为阿拉伯语或希伯来语）时，影响就显现出来了。此时滚动条不在右边，而是在左边，此时`clientLeft`则包含了滚动条的宽度。
+
+`clientWidth/Height`
+这些属性提供了元素边框内区域的大小。
+它们包括了 “content width” 和 “padding”，但不包括滚动条宽度（scrollbar）。
+
+如果这里没有 padding，那么 clientWidth/Height 代表的就是内容区域。
+即border和scrollbar（如果有）内的区域。
+
+**因此，当没有 padding 时，我们可以使用 clientWidth/clientHeight 来获取内容区域的大小。**
+
+`scrollWidth/Height`这些属性就像 clientWidth/clientHeight，但它们还**包括滚动（隐藏）的部分**：
+
+我们可以使用这些属性将元素展开（expand）到整个 width/height。
+```js
+// 将元素展开（expand）到完整的内容高度
+element.style.height = `${element.scrollHeight}px`;
+```
+**所以可以用这个做展开全文吧**
+
+属性`scrollLeft/scrollTop`是元素的隐藏、滚动部分的 width/height。
+`scrollTop`就是“已经滚动了多少”。
+大多数几何属性是只读的，但是`scrollLeft/scrollTop`是可修改的，并且浏览器会滚动该元素。
+将`scrollTop`设置为 0 或一个大的值，例如 1e9，将会使元素滚动到顶部/底部。
+
+************************************
+**不要直接读取CSS中的元素大小**
+************************************
+
+### 3.7.3 滚动
+
+方法`scrollBy(x,y)`将页面滚动至相对于当前位置的(x, y)位置。例如，`scrollBy(0,10)`会将页面向下滚动10px。
+
+方法`scrollTo(pageX,pageY)`将页面滚动至**绝对坐标**，使得可见部分的左上角具有相对于文档左上角的坐标 (pageX, pageY)。就像设置了scrollLeft/scrollTop一样。
+
+**要滚动到最开始，我们可以使用 scrollTo(0,0)。**
+这些方法适用于所有浏览器。
+
+`elem.scrollIntoView(top)`的调用将滚动页面以使elem可见。它有一个参数：
+- 如果 top=true（默认值），页面滚动，使 elem 出现在窗口顶部。元素的上边缘将与窗口顶部对齐。
+- 如果 top=false，页面滚动，使 elem 出现在窗口底部。元素的底部边缘将与窗口底部对齐。
+`this.scrollIntoView()`滚动页面，使其自身定位在窗口顶部
+`this.scrollIntoView(false)`滚动页面，使其自身定位在窗口底部
+
+`document.body.style.overflow = "hidden"` **禁止滚动**
+`document.body.style.overflow = ""` **能够滚动**
