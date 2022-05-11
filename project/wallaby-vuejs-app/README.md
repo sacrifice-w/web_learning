@@ -1,4 +1,4 @@
-# hello-world
+# wallaby-vuejs-app
 
 ## Project setup
 ```
