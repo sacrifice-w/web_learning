@@ -1269,3 +1269,202 @@ event对象在HTML特性或者是DOM属性中都能够被使用
   elem.addEventListener('mouseup', menu);
 </script>
 ```
+
+## 4.2 冒泡和捕获
+### 4.2.1 冒泡(bubbing)
+
+当一个事件发生在一个元素上，它会首先运行在该元素上的处理程序，然后运行其父元素上的处理程序，然后一直向上到其他祖先上的处理程序。
+假设我们有 3 层嵌套 `FORM > DIV > P`，它们各自拥有一个处理程序：
+```html
+<style>
+  body * {
+    margin: 10px;
+    border: 1px solid blue;
+  }
+</style>
+
+<form onclick="alert('form')">FORM
+  <div onclick="alert('div')">DIV
+    <p onclick="alert('p')">P</p>
+  </div>
+</form>
+```
+点击内部的`<p>`会首先运行`onclick`：
+1. 在该`<p>`上的。
+2. 然后是外部`<div>`上的。
+3. 然后是外部`<form>`上的。
+4. 以此类推，直到最后的`document`对象。
+
+因此，如果我们点击`<p>`，那么我们将看到 3 个 alert：p → div → form。
+
+**这个过程被称为“冒泡（bubbling）”，因为事件从内部元素“冒泡”到所有父级，就像在水里的气泡一样。**
+
+**几乎**所有事件都会冒泡。
+例如，`focus`事件不会冒泡。同样，我们以后还会遇到其他例子。但这仍然是例外，而不是规则，大多数事件的确都是冒泡的。
+
+### 4.2.2 event.target
+父元素上的处理程序始终可以获取事件实际发生位置的详细信息。
+引发事件的那个嵌套层级最深的元素被称为目标元素,可以通过`event.target`访问。
+
+this和event.target的区别：
+- `event.target` —— 是引发事件的“目标”元素，它在冒泡过程中不会发生变化。
+- `this` —— 是“当前”元素，其中有一个当前正在运行的处理程序。
+
+在一个事件中，this代表的元素就是这个事件的元素，而event.target则不一定，它可能是这个事件的子元素
+
+### 4.2.3 停止冒泡
+
+冒泡事件从目标元素开始向上冒泡。通常，它会一直上升到`<html>`，然后再到`document`对象，有些事件甚至会到达 `window`，它们会调用路径上所有的处理程序。
+
+**但是任意处理程序都可以决定事件已经被完全处理，并停止冒泡。**
+
+用于停止冒泡的方法是`event.stopPropagation()`。
+
+如果一个元素在一个事件上有多个处理程序，即使其中一个停止冒泡，其他处理程序仍会执行。
+换句话说，`event.stopPropagation()`停止向上移动，但是当前元素上的其他处理程序都会继续运行。
+有一个`event.stopImmediatePropagation()`方法，可以用于停止冒泡，并阻止当前元素上的处理程序运行。使用该方法之后，其他处理程序就不会被执行。
+
+
+**不要在没有需要的情况下停止冒泡！**
+
+通常，没有真正的必要去阻止冒泡。一项看似需要阻止冒泡的任务，可以通过其他方法解决。其中之一就是使用自定义事件，我们还可以将我们的数据写入一个处理程序中的`event`对象，并在另一个处理程序中读取该数据，这样我们就可以向父处理程序传递有关下层处理程序的信息。
+
+### 4.2.4 捕获
+事件处理的另一个阶段被称为“捕获（capturing）”。它很少被用在实际开发中，但有时是有用的。
+
+DOM 事件标准描述了事件传播的 3 个阶段：
+
+1. 捕获阶段（Capturing phase）—— 事件（从 Window）向下走近元素。
+2. 目标阶段（Target phase）—— 事件到达目标元素。
+3. 冒泡阶段（Bubbling phase）—— 事件从元素上开始冒泡。
+
+
+## 4.3 事件委托
+
+捕获和冒泡允许我们实现最强大的事件处理模式之一，即**事件委托**模式。
+
+如果我们有许多以**类似方式**处理的元素，那么就不必为每个元素分配一个处理程序 —— 而是**将单个处理程序放在它们的共同祖先上**。
+
+在处理程序中，我们获取`event.target`以查看事件实际发生的位置并进行处理。
+
+### 4.3.1 标记中的行为(action in markup)
+
+例如，我们想要编写一个有“保存”、“加载”和“搜索”等按钮的菜单。并且，这里有一个具有 save、load 和 search 等方法的对象。如何匹配它们？
+第一个想法可能是为每个按钮分配一个单独的处理程序。但是有一个更优雅的解决方案。我们可以为整个菜单添加一个处理程序，并为具有方法调用的按钮添加 data-action 特性（attribute）：
+`<button data-action="save">Click to Save</button>`
+
+处理程序读取特性（attribute）并执行该方法。工作示例如下：
+```html
+<div id="menu">
+  <button data-action="save">Save</button>
+  <button data-action="load">Load</button>
+  <button data-action="search">Search</button>
+</div>
+<script>
+  class Menu {
+    constructor(elem) {
+      this._elem = elem;
+      elem.onclick = this.onClick.bind(this); // (*)
+    }
+
+    save() {
+      alert('saving');
+    }
+
+    load() {
+      alert('loading');
+    }
+
+    search() {
+      alert('searching');
+    }
+
+    onClick(event) {
+      let action = event.target.dataset.action;
+      if (action) {
+        this[action]();
+      }
+    };
+  }
+  new Menu(menu);
+</script>
+```
+
+- 我们不需要编写代码来为每个按钮分配一个处理程序。只需要创建一个方法并将其放入标记（markup）中即可。
+- HTML 结构非常灵活，我们可以随时添加/移除按钮。
+
+
+### 4.3.2 行为模式
+
+我们还可以使用事件委托将“行为（behavior）”以 声明方式 添加到具有特殊特性（attribute）和类的元素中。
+行为模式分为两个部分：
+
+- 我们将自定义特性添加到描述其行为的元素。
+- 用文档范围级的处理程序追踪事件，如果事件发生在具有特定特性的元素上 —— 则执行行为（action）。
+
+**行为：计数器**
+```html
+Counter: <input type="button" value="1" data-counter>
+One more counter: <input type="button" value="2" data-counter>
+<script>
+  document.addEventListener('click', function(event) {
+
+    if (event.target.dataset.counter != undefined) { // 如果这个特性存在...
+      event.target.value++;
+    }
+
+  });
+</script>
+```
+
+对于文档级的处理程序 —— 始终使用的是`addEventListener`
+当我们将事件处理程序分配给`document`对象时，我们应该始终使用`addEventListener`，而不是`document.on<event>`，因为后者会引起冲突：新的处理程序会覆盖旧的处理程序。
+
+对于实际项目来说。在`document`上有许多由代码的不同部分设置的处理程序，这是很正常的。
+
+**行为：切换器**
+点击一个具有 data-toggle-id 特性的元素将显示/隐藏具有给定 id 的元素：
+```html
+button data-toggle-id="subscribe-mail">
+  Show the subscription form
+</button>
+
+<form id="subscribe-mail" hidden>
+  Your mail: <input type="email">
+</form>
+
+<script>
+  document.addEventListener('click', function(event) {
+    let id = event.target.dataset.toggleId;
+    if (!id) return;
+
+    let elem = document.getElementById(id);
+
+    elem.hidden = !elem.hidden;
+  });
+</script>
+```
+
+让我们再次注意我们做了什么。现在，要向元素添加切换功能 —— 无需了解JavaScript，只需要使用特性`data-toggle-id` 即可。
+这可能变得非常方便 —— 无需为每个这样的元素编写 JavaScript。只需要使用行为。文档级处理程序使其适用于页面的任意元素。
+
+**我们也可以组合单个元素上的多个行为。**
+
+**“行为”模式可以替代 JavaScript 的小片段。**
+
+### 4.3.3 总结
+
+**它通常用于为许多相似的元素添加相同的处理，但不仅限于此。**
+
+1. 在容器（container）上放一个处理程序。
+2. 在处理程序中 —— 检查源元素 event.target。
+3. 如果事件发生在我们感兴趣的元素内，那么处理该事件。
+
+好处：
+- 简化初始化并节省内存：无需添加许多处理程序。
+- 更少的代码：添加或移除元素时，无需添加/移除处理程序。
+- DOM 修改 ：我们可以使用 innerHTML 等，来批量添加/移除元素。
+
+局限：
+- 首先，事件必须冒泡。而有些事件不会冒泡。此外，低级别的处理程序不应该使用 event.stopPropagation()。
+- 其次，委托可能会增加 CPU 负载，因为容器级别的处理程序会对容器中任意位置的事件做出反应，而不管我们是否对该事件感兴趣。但是，通常负载可以忽略不计，所以我们不考虑它。
