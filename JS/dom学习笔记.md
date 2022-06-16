@@ -1681,3 +1681,264 @@ alert(event.clientX); // 100
 通常事件是在队列中处理的。也就是说：如果浏览器正在处理`onclick`，这时发生了一个新的事件，例如鼠标移动了，那么它的处理程序会被排入队列，相应的`mousemove`处理程序将在`onclick`事件处理完成后被调用。
 
 值得注意的例外情况就是，一个事件是在另一个事件中发起的。例如使用`dispatchEvent`。这类事件将会被立即处理，即在新的事件处理程序被调用之后，恢复到当前的事件处理程序。
+
+## 4.6 鼠标事件
+
+鼠标事件不仅可能来自于“鼠标设备”，还可能来自于对此类操作进行了模拟以实现兼容性的其他设备，例如手机和平板电脑。
+
+dbclick 双击鼠标
+因为双击鼠标会造成副作用，比如说如果给文本绑定双击的话，还会选择文本
+所以为了避免造成副作用，应该防止浏览器对`mousedown`进行操作。
+```js
+Before...
+<b ondblclick="alert('Click!')" onmousedown="return false">
+  Double-click me
+</b>
+...After
+```
+contextmenu 鼠标右键被按下时触发
+
+**鼠标事件的顺序：**
+在单个动作触发多个事件时，事件的顺序是固定的。也就是说，会遵循 mousedown → mouseup → click 的顺序调用处理程序。
+`button`属性允许检测鼠标按键
+
+### 4.6.1 鼠标按钮
+与点击相关的事件始终具有`button`属性，该属性允许获取确切的鼠标按钮。
+
+通常我们不在`click`和`contextmenu`事件中使用这一属性，因为前者只在单击鼠标左键时触发，后者只在单击鼠标右键时触发。
+不过，在`mousedown`和`mouseup`事件中则可能需要用到`event.button`，因为这两个事件在任何按键上都会触发，所以我们可以使用`button`属性来区分是左键单击还是右键单击。
+
+|鼠标按键状态|event.button|
+|----|----|
+|左键 (主要按键)|0 |
+|中键 (辅助按键)| 1|
+|右键 (次要按键)|2|
+|X1 键 (后退按键)|3 |
+|X2 键 (前进按键)|4 |
+
+大多数鼠标设备只有左键和右键，对应的值就是 0 和 2。触屏设备中的点按操作也会触发类似的事件。
+
+另外，还有一个`event.buttons`属性，其中以整数的形式存储着当前所有按下的鼠标按键，每个按键一个比特位。
+
+**event.which已经被弃用，其是一种非常古老的获得按下的按键的方式**
+
+### 4.6.2 组合键
+shift：shiftKey
+alt: altKey
+ctrl: ctrlKey
+metakey: 对于mac是cmd
+```js
+// 这个按钮只有在alt+shift+click才会生效
+<button id="button">Alt+Shift+Click on me!</button>
+
+<script>
+  button.onclick = function(event) {
+    if (event.altKey && event.shiftKey) {
+      alert('Hooray!');
+    }
+  };
+</script>
+```
+
+**在mac上的不同操作：**
+在Windows和Linux上有Alt，Shift和Ctrl。在Mac上还有：Cmd，它对应于属性 metaKey。
+在大多数情况下，当在 Windows/Linux 上使用Ctrl时，在Mac是使用Cmd。
+也就说：当 Windows 用户按下Ctrl+Enter或Ctrl+A时，Mac用户会按下Cmd+Enter或 Cmd+A，以此类推。
+因此，如果我们想支持Ctrl+click，那么对于Mac应该使用 Cmd+click。对于Mac用户而言，这更舒适。
+即使我们想强制Mac用户使用Ctrl+click —— 这非常困难。问题是：在MacOS上左键单击和Ctrl一起使用会被解释为右键单击，并且会生成contextmenu事件，而不是像 Windows/Linux中的click事件。
+因此，如果我们想让所有操作系统的用户都感到舒适，那么我们应该将ctrlKey与 metaKey一起进行检查。
+对于 JS 代码，这意味着我们应该检查`if (event.ctrlKey || event.metaKey)`。
+
+### 4.6.3 坐标
+1. 相对于窗口的坐标：`clientX`和`clientY`。
+2. 相对于文档的坐标：`pageX`和`pageY`。
+
+相对于文档的坐标不会随着页面的滚动而改变。
+相对于窗口的坐标是以当前窗口的左上角为参照物
+
+### 4.6.4 防止复制
+~~万恶之源来了~~
+如果我们想禁用选择以保护我们页面的内容不被复制粘贴，那么我们可以使用另一个事件：`oncopy`。
+```js
+<div oncopy="alert('Copying forbidden!');return false">
+  Dear user,
+  The copying is forbidden for you.
+  If you know JS or HTML, then you can get everything from the page source though.
+</div>
+```
+
+### 4.6.5 移动鼠标事件
+
+`mouseover/mouseout`:当鼠标指针移到某个元素上时，`mouseover`事件就会发生，而当鼠标离开该元素时，`mouseout`事件就会发生。
+
+`mouseover`:
+- `event.target`——是鼠标移过的那个元素
+- `event.relatedTarget`——是鼠标来自的那个元素（relatedtarget -> target）
+
+`mouseout`:
+- `event.target`——是鼠标离开的元素
+- `event.relatedTarget`——是鼠标移动到的，当前指针位置下的元素（target-> relatedTarget）
+
+mouseover 和 mouseout 完全相反
+
+**`relatedTarget`属性可以为null。**
+这是正常现象，仅仅是意味着鼠标不是来自另一个元素，而是来自窗口之外。或者它离开了窗口。
+当我们在代码中使用`event.relatedTarget`时，我们应该牢记这种可能性。如果我们访问`event.relatedTarget.tagName`，那么就会出现错误。
+
+在移动鼠标时，就会触发`mousemove`事件。
+如果访问者移动鼠标非常快的话，某些元素可能会被跳过。
+
+如果mouseover被触发了，则必须有mouseout
+
+当从父元素转到子元素时，也会触发mouseover/out事件。
+浏览器假定鼠标一次只会位于一个元素上 —— 最深的那个。
+
+`mouseenter/mouseleave`:
+mouseenter/mouseleave的最大区别就是，当鼠标指针进入一个元素时，会触发mouseenter,而就算它移动到child里也不会有影响，所以说其会忽略后代之间的移动，只有其移出元素时，才会触发mouseleave
+并且其不会冒泡
+
+### 4.6.6 鼠标拖放事件
+1. 在`mousedown`上 —— 根据需要准备要移动的元素（也许创建一个它的副本，向其中添加一个类或其他任何东西）。
+2. 然后在`mousemove`上，通过更改 position:absolute 情况下的 left/top 来移动它。
+3. 在`mouseup`上 —— 执行与完成的拖放相关的所有行为。
+
+```js
+ball.onmousedown = function(event) {
+  // (1) 准备移动：确保 absolute，并通过设置 z-index 以确保球在顶部
+  ball.style.position = 'absolute';
+  ball.style.zIndex = 1000;
+
+  // 将其从当前父元素中直接移动到 body 中
+  // 以使其定位是相对于 body 的
+  document.body.append(ball);
+
+  // 现在球的中心在 (pageX, pageY) 坐标上
+  function moveAt(pageX, pageY) {
+    ball.style.left = pageX - ball.offsetWidth / 2 + 'px';
+    ball.style.top = pageY - ball.offsetHeight / 2 + 'px';
+  }
+
+  // 将我们绝对定位的球移到指针下方
+  moveAt(event.pageX, event.pageY);
+
+  function onMouseMove(event) {
+    moveAt(event.pageX, event.pageY);
+  }
+
+  // (2) 在 mousemove 事件上移动球
+  document.addEventListener('mousemove', onMouseMove);
+
+  // (3) 放下球，并移除不需要的处理程序
+  ball.onmouseup = function() {
+    document.removeEventListener('mousemove', onMouseMove);
+    ball.onmouseup = null;
+  };
+  // 因为页面本身可能会有冲突，所以需要禁止这些行为
+  ball.ondragstart = function() {
+  return false;
+  };
+};
+```
+[更多详情](https://zh.javascript.info/mouse-drag-and-drop)
+
+[滑动条](./js/dom/事件/滑动条.html)
+
+## 4.7 指针事件
+指针事件（Pointer Events）是一种用于处理来自各种输入设备（例如鼠标、触控笔和触摸屏等）的输入信息的现代化解决方案。
+
+指针事件是用来替代鼠标事件的，而且和鼠标事件兼容，就是换成了pointer。
+比如`mousedown`可以被替换成`pointerdown`。
+我们可以把代码中的`mouse<event>`都替换成`pointer<event>`，程序仍然正常兼容鼠标设备。
+替换之后，程序对触屏设备的支持会“魔法般”地提升。但是，我们可能需要在 CSS 中的某些地方添加`touch-action: none`。
+
+### 4.7.1 指针事件属性
+- `pointerId`—— 触发当前事件的指针唯一标识符。
+  浏览器生成的。使我们能够处理多指针的情况，例如带有触控笔和多点触控功能的触摸屏（下文会有相关示例）。
+- `pointerType` —— 指针的设备类型。必须为字符串，可以是：“mouse”、“pen” 或 “touch”。
+  我们可以使用这个属性来针对不同类型的指针输入做出不同响应。
+- `isPrimary` —— 当指针为首要指针（多点触控时按下的第一根手指）时为 true。
+
+有些指针设备会测量接触面积和点按压力（例如一根手指压在触屏上），对于这种情况可以使用以下属性：
+- `width`—— 指针（例如手指）接触设备的区域的宽度。对于不支持的设备（如鼠标），这个值总是 1。
+- `height`—— 指针（例如手指）接触设备的区域的长度。对于不支持的设备，这个值总是 1。
+- `pressure`—— 触摸压力，是一个介于 0 到 1 之间的浮点数。对于不支持压力检测的设备，这个值总是 0.5（按下时）或 0。
+- `tangentialPressure`—— 归一化后的切向压力（tangential pressure）。
+- `tiltX, tiltY, twist`—— 针对触摸笔的几个属性，用于描述笔和屏幕表面的相对位置。
+
+### 4.7.2 多点触控
+
+**多点触控（用户在手机或平板上同时点击若干个位置，或执行特殊手势）是鼠标事件完全不支持的功能之一。**
+
+第一根手指触摸时：
+`pointerdown`事件触发，`isPrimary=true`，指派一个`pointerId``
+第二个和后续的更多个手指触摸（假设第一个手指仍在触摸）：
+`pointerdown`事件触发，`isPrimary=false`，并且每一个触摸都被指派了不同的 `pointerId`。
+
+**对于多点触控事件来说，pointerId是由浏览器进行分配的，所以说如果有多根手指同时触摸屏幕，就会得到多个pointerdown事件和对应的坐标以及不同的pointerId。**
+
+利用`pointerId`，我们可以追踪多根正在触摸屏幕的手指。当用户移动或抬起某根手指时，我们会得到和`pointerdown`事件具有相同`pointerId`的`pointermove`或`pointerup`事件。
+
+### 4.7.3 pointercancel
+`pointercancel`事件将会在一个正处于活跃状态的指针交互由于某些原因被中断时触发。也就是在这个事件之后，该指针就不会继续触发更多事件了。
+导致指针中断的可能原因如下：
+- 指针设备硬件在物理层面上被禁用。
+- 设备方向旋转（例如给平板转了个方向）。
+- 浏览器打算自行处理这一交互，比如将其看作是一个专门的鼠标手势或缩放操作等。
+
+
+**阻止浏览器的默认行为来防止`pointercancel`触发。**
+
+需要做两件事：
+1. 阻止原生的拖放操作发生
+  - event.ondragstart = () => false
+2. 对于触屏设备，还有其他和触摸相关的浏览器行为（除了拖放）。为了避免它们所引发的问题
+  - 通过在 CSS 中设置 #event { touch-action: none } 来阻止它们。
+
+### 4.7.4 指针捕获
+
+**指针捕获可以被用于简化拖放类的交互。**
+
+`elem.setPointerCapture(pointerId)`将所有具有给定`pointerId`的后续事件重新定位到`elem`。
+
+绑定会在以下情况下被移除：
+- 当`pointerup`或`pointercancel`事件出现时，绑定会被自动地移除。
+- 当`elem`被从文档中移除后，绑定会被自动地移除。
+- 当`elem.releasePointerCapture(pointerId)`被调用，绑定会被移除。
+
+在[滑动条](./js/dom/事件/滑动条.html)的处理中，我们可以在`pointerdown`事件的处理程序中调用`thumb.setPointerCapture(event.pointerId)`，
+这样接下来在`pointerup/cancel`之前发生的所有指针事件都会被重定向到`thumb`上。
+当`pointerup`发生时（拖动完成），绑定会被自动移除，我们不需要关心它。
+因此，即使用户在整个文档上移动指针，事件处理程序也将仅在`thumb`上被调用。尽管如此，事件对象的坐标属性，例如`clientX/clientY`仍将是正确的 —— 捕获仅影响`target/currentTarget`。
+
+所以说这个操作一下子就简化了拖拽的问题，以前鼠标事件的时候，它因为不是完全水平的拖动，所以移动的范围在整个document文档里，但是现在只指向了thumb上，就节省了很多空间，也减少了bug。
+```js
+thumb.onpointerdown = function(event) {
+  // 把所有指针事件（pointerup 之前发生的）重定向到 thumb
+  thumb.setPointerCapture(event.pointerId);
+
+  // 开始跟踪指针的移动
+  thumb.onpointermove = function(event) {
+    // 移动滑动条：在 thumb 上监听即可，因为所有指针事件都被重定向到了 thumb
+    let newLeft = event.clientX - slider.getBoundingClientRect().left;
+    thumb.style.left = newLeft + 'px';
+  };
+
+  // 当结束(pointerup)时取消对指针移动的跟踪
+  thumb.onpointerup = function(event) {
+    thumb.onpointermove = null;
+    thumb.onpointerup = null;
+    // ...这里还可以处理“拖动结束”相关的逻辑
+  };
+};
+
+// 注意：无需调用 thumb.releasePointerCapture，
+// 它会在 pointerup 时被自动调用```
+```
+
+言而总之，指针捕获为我们带来了两个好处：
+代码变得更加简洁，我们不再需要在整个 document 上添加/移除处理程序。绑定会被自动释放。
+如果文档中有其他指针事件处理程序，则在用户拖动滑动条时，它们不会因指针的移动被意外地触发。
+
+还有两个与指针捕获相关的事件：
+`gotpointercapture`会在一个元素使用`setPointerCapture`来启用捕获后触发。
+`lostpointercapture`会在捕获被释放后触发：其触发可能是由于`releasePointerCapture`的显式调用，或是`pointerup/pointercancel`事件触发后的自动调用。
