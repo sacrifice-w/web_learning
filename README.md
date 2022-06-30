@@ -9,3 +9,4 @@ CSS部分：<br />
 JavaScript部分：<br />
 - [js基础](JS/Javascript学习笔记.md)
 - [js基础补充](JS/Javascript学习知识补充.md)
+- [DOM学习笔记](JS/dom学习笔记.md)
