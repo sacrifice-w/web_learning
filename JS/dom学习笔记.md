@@ -2020,3 +2020,370 @@ function checkPhoneKey(key) {
 `scroll`事件在`window`和可滚动元素上都可以运行。
 
 启动滚动的方式有很多，使用 CSS 的`overflow`属性更加可靠。
+
+# 五、表单属性和方法
+学习关于表单（form）和`<input>`控件的属性和事件
+
+表单可以从`document.forms`中找到
+表单在document中是一个特殊的集合，其既是命名的，也是有序的。
+所以可以通过名字或者在文档中的编号来获取表单
+```js
+document.forms.my; // name="my" 的表单
+document.forms[0]; // 文档中的第一个表单
+```
+
+当我们有了一个表单时，其中的任何元素都可以通过命名的集合`form.elements`来获取到。
+
+```js
+<form name="my">
+  <input name="one" value="1">
+  <input name="two" value="2">
+</form>
+
+<script>
+  // 获取表单
+  let form = document.forms.my; // <form name="my"> 元素
+
+  // 获取表单中的元素
+  let elem = form.elements.one; // <input name="one"> 元素
+
+  alert(elem.value); // 1
+</script>
+```
+
+可能会有多个名字相同的元素，这种情况经常在处理单选按钮中出现。
+
+在这种情况下,`form.elements[name]`将会是一个集合。例如：
+
+``` js
+<form>
+  <input type="radio" name="age" value="10">
+  <input type="radio" name="age" value="20">
+</form>
+
+<script>
+let form = document.forms[0];
+
+let ageElems = form.elements.age;
+
+alert(ageElems[0]); // [object HTMLInputElement]
+</script>
+```
+
+可以通过`form[index/name]`来访问元素。
+换句话说，我们可以将`form.elements.login`写成`form.login`。
+这也有效，但是会有一个小问题：如果我们访问一个元素，然后修改它的 name，之后它仍然可以被通过旧的 name 访问到（当然也能通过新的 name 访问）。
+
+**form可以反向引用**
+比如说我可以通过`form.element`来找到这个元素，那么也可以通过`element.form`来反向引用这个表单
+
+我们可以通过`input.value`（字符串）或`input.checked`（布尔值）来访问复选框（checkbox）和单选按钮（radio button）中的 value。
+```js
+input.value = "New value";
+textarea.value = "New text";
+
+input.checked = true; // 对于复选框（checkbox）或单选按钮（radio button）
+```
+
+`<select>元素就是下滑框`
+一个`<select>`元素有 3 个重要的属性：
+- `select.options` —— `<option>`的子元素的集合，
+- `select.value` —— 当前所选择的`<option>`的 value，
+- `select.selectedIndex` —— 当前所选择的`<option>`的编号。
+
+它们提供了三种为`<select>`设置 value 的不同方式：
+找到对应的`<option>`元素（例如在`select.options`中），并将其`option.selected`设置为 true。
+如果我们知道新的值：将`select.value`设置为对应的新的值。
+如果我们知道新的选项的索引：将`select.selectedIndex`设置为对应 `<option>`的编号。
+
+```js
+<select id="select">
+  <option value="apple">Apple</option>
+  <option value="pear">Pear</option>
+  <option value="banana">Banana</option>
+</select>
+
+<script>
+  // 下面这三行做的都是同一件事
+  select.options[2].selected = true;
+  select.selectedIndex = 2;
+  select.value = 'banana';
+  // 请注意：选项编号是从零开始的，所以编号 2 表示的是第三项
+</script>
+```
+
+如果`<select>`具有`multiple`特性（attribute），则允许多选。尽管这个特性（attribute）很少被用到。
+```js
+<select id="select" multiple>
+  <option value="blues" selected>Blues</option>
+  <option value="rock" selected>Rock</option>
+  <option value="classic">Classic</option>
+</select>
+
+<script>
+  // 从 multi-select 中获取所有选定的 `value`
+  let selected = Array.from(select.options)
+    .filter(option => option.selected)
+    .map(option => option.value);
+
+  alert(selected); // blues,rock
+</script>
+```
+
+如何创建一个新的option
+`option = new Option(text, value, defaultSelected, selected);`
+其中text代表文本，value代表值，defaultSelected如果为true，则selected特性会被创建，selected为true，则其会被选中
+
+`defaultSelected`和`selected`的区别是，`defaultSelected`设置的是 HTML-特性（attribute），我们可以使用`option.getAttribute('selected')` 来获得。而 selected 设置的是选项是否被选中。
+
+在实际使用中，通常应该将同时将这两个值设置为 true 或 false。（或者，直接省略它们；两者都默认为 false。）
+
+## 5.1 聚焦（focus/blur）
+
+当用户点击某个元素或使用键盘上的 Tab 键选中时，该元素将会获得聚焦（focus）。还有一个 HTML 特性（attribute）autofocus 可以让焦点在网页加载时默认落在一个元素上，此外还有其它途径可以获得焦点。
+
+聚焦到一个元素通常意味着：“准备在此处接受数据”，所以，这正是我们可以运行代码以初始化所需功能的时刻。
+
+失去焦点的时刻（“blur”）可能更为重要。它可能发生在用户点击页面的其它地方，或者按下 Tab 键跳转到下一个表单字段，亦或是其它途径的时候。
+
+失去焦点通常意味着：“数据已经输入完成”，所以我们可以运行代码来检查它，甚至可以将其保存到服务器上，或进行其他操作。
+
+**当元素聚焦时，会触发`focus`事件，当元素失去焦点时，会触发`blur`事件。**
+
+```html
+<style>
+  .invalid { border-color: red; }
+  #error { color: red }
+</style>
+
+Your email please: <input type="email" id="input">
+
+<div id="error"></div>
+
+<script>
+input.onblur = function() {
+  if (!input.value.includes('@')) { // not email
+    input.classList.add('invalid');
+    error.innerHTML = 'Please enter a correct email.'
+  }
+};
+
+input.onfocus = function() {
+  if (this.classList.contains('invalid')) {
+    // 移除 "error" 指示，因为用户想要重新输入一些内容
+    this.classList.remove('invalid');
+    error.innerHTML = "";
+  }
+};
+</script>
+```
+
+上面这段就是一个关于focus和blur的示例，当元素不聚焦时，如果输入框中的值不包含@，则会添加一个使框变红的类，并且添加一个错误信息。
+而当元素再进入聚焦时，则会将这些信息清除掉。以此来重新输入信息
+
+```HTML
+<style>
+  .error {
+    background: red;
+  }
+</style>
+
+Your email please: <input type="email" id="input">
+<input type="text" style="width:220px" placeholder="make email invalid and try to focus here">
+
+<script>
+  input.onblur = function() {
+    if (!this.value.includes('@')) { // not email
+      // 显示 error
+      this.classList.add("error");
+      // ...将焦点放回来
+      input.focus();
+    } else {
+      this.classList.remove("error");
+    }
+  };
+</script>
+```
+上面这段代码更有意思，其通过给非聚焦元素添加了一个设置焦点，从而使如果没有@这个符号，焦点就不会转移
+所以说：可以通过`elem.focus()`来设置元素的焦点。或者通过`elem.blur()`来移除元素的焦点
+
+**这段代码在除了火狐（bug）之外的浏览器上都可以正常工作。**
+
+**JavaScript 导致的焦点丢失**
+
+- 一个 alert 会将焦点移至自身，因此会导致元素失去焦点（触发 blur 事件），而当 alert 对话框被取消时，焦点又回重新回到原元素上（触发 focus 事件）。
+- 如果一个元素被从 DOM 中移除，那么也会导致焦点丢失。如果稍后它被重新插入到 DOM，焦点也不会回到它身上。
+
+这些特性有时候会导致 focus/blur 处理程序发生异常 —— 在不需要它们时触发。
+
+### 5.1.1 tabindex(强行聚焦)
+
+默认情况下，很多元素不支持聚焦。
+
+列表（list）在不同的浏览器表现不同，但有一件事总是正确的：focus/blur 保证支持那些用户可以交互的元素：`<button>`，`<input>`，`<select>`，`<a>` 等。
+
+另一方面，为了格式化某些东西而存在的元素像`<div>`，`<span>`和`<table>`—— 默认是不能被聚焦的。`elem.focus()`方法不适用于它们，并且 focus/blur 事件也绝不会被触发。
+
+使用 HTML-特性（attribute)`tabindex`可以改变这种情况。
+
+任何具有`tabindex`特性的元素，都会变成可聚焦的。该特性的value是当使用 Tab（或类似的东西）在元素之间进行切换时，元素的顺序号。
+
+也就是说：如果我们有两个元素，第一个具有`tabindex="1"`，第二个具有 `tabindex="2"`，然后当焦点在第一个元素的时候，按下 Tab 键，会使焦点移动到第二个元素身上。
+
+切换顺序为：从 1 开始的具有 tabindex 的元素排在前面（按 tabindex 顺序），然后是不具有 tabindex 的元素（例如常规的`<input>`）。
+
+不具有 tabindex 的元素按文档源顺序（默认顺序）切换。
+
+**特殊情况**
+- `tabindex="0"`会使该元素被与那些不具有 tabindex 的元素放在一起。也就是说，当我们切换元素时，具有 `tabindex="0"`的元素将排在那些具有 tabindex ≥ 1 的元素的后面。
+通常，它用于使元素具有焦点，但是保留默认的切换顺序。使元素成为与`<input>`一样的表单的一部分。
+
+- `tabindex="-1"`只允许以编程的方式聚焦于元素。Tab 键会忽略这样的元素，但是 `elem.focus()`有效。
+
+我们可以使用`elem.tabIndex`通过 JavaScript 来添加`tabindex`。效果是一样的。
+
+### 5.1.2 委托
+
+`focus`和`blur`事件不会向上冒泡。
+
+因为当用户聚焦于`<input>`时，focus 事件只会在该`<input>`上触发。它不会向上冒泡。所以`form.onfocus`永远不会触发。
+
+```html
+<form id="form">
+  <input type="text" name="name" value="Name">
+  <input type="text" name="surname" value="Surname">
+</form>
+
+<style> .focused { outline: 1px solid red; } </style>
+
+<script>
+  // 将处理程序置于捕获阶段（最后一个参数为 true）
+  form.addEventListener("focus", () => form.classList.add('focused'), true);
+  form.addEventListener("blur", () => form.classList.remove('focused'), true);
+</script>
+```
+可以通过在捕获阶段添加focus事件来解决问题
+
+或者说可以通过`focusin`和`focusout`事件来进行，其和`focus/blur`完全一样，但是他们会冒泡。
+
+值得注意的是，必须使用`elem.addEventListener`来分配它们，而不是 `on<event>`。
+
+## 5.2 事件：change、input、cut、copy、paste
+
+### 5.2.1 change
+
+当元素更改完成时，将触发`change`事件。
+对于文本输入框，当其失去焦点时，就会触发`change`事件。
+
+例如，当我们在下面的文本字段中键入内容时 —— 不会触发 change 事件。但是，当我们将焦点移到其他位置时，例如，点击按钮 —— 就会触发 change 事件：
+```js
+<input type="text" onchange="alert(this.value)">
+<input type="button" value="Button">
+```
+
+对于其它元素：`select`，`input type=checkbox/radio`，会在选项更改后立即触发change事件。
+
+```js
+<select onchange="alert(this.value)">
+  <option value="">Select something</option>
+  <option value="1">Option 1</option>
+  <option value="2">Option 2</option>
+  <option value="3">Option 3</option>
+</select>
+```
+
+### 5.2.2 input
+每当用户对输入值进行修改后，就会触发`input`事件。
+
+与键盘事件不同，只要值改变了，`input`事件就会触发，即使那些不涉及键盘行为（action）的值的更改也是如此：使用鼠标粘贴，或者使用语音识别来输入文本。
+
+如果我们想要处理对`<input>`的每次更改，那么`oninput`事件是最佳选择。
+
+另一方面，input 事件不会在那些不涉及值更改的键盘输入或其他行为上触发，例如在输入时按方向键 ⇦ ⇨。
+
+当输入值更改后，就会触发`input`事件。
+
+所以，我们无法使用`event.preventDefault()` —— 已经太迟了，不会起任何作用了。
+
+### 5.2.3 cut、copy、paste
+这些事件发生于剪切/拷贝/粘贴一个值的时候。
+它们属于 [ClipboardEvent](https://www.w3.org/TR/clipboard-apis/#clipboard-event-interfaces) 类，并提供了对剪切/拷贝/粘贴的数据的访问方法。
+我们也可以使用`event.preventDefault()`来中止行为，然后什么都不会被复制/粘贴。
+
+下面的代码阻止了剪切/拷贝/粘贴的事件，并显示出了我们所尝试剪切/拷贝/粘贴的内容：
+```html
+<input type="text" id="input">
+<script>
+  input.onpaste = function(event) {
+    alert("paste: " + event.clipboardData.getData('text/plain'));
+    event.preventDefault();
+  };
+
+  input.oncut = input.oncopy = function(event) {
+    alert(event.type + '-' + document.getSelection());
+    event.preventDefault();
+  };
+</script>
+```
+
+在剪切/复制事件处理程序中调用`event.clipboardData.getData(...)`只会得到一个空字符串。从技术上讲，这是因为此时数据还未存入剪切板。如果我们使用`event.preventDefault()`，则它根本不会被复制。
+
+所以上面的例子中使用`document.getSelection()`来得到被选中的文本。
+
+我们不仅可以复制/粘贴文本，也可以复制/粘贴其他各种内容。例如，我们可以在操作系统的文件管理器中复制一个文件并进行粘贴。
+
+这是因为`clipboardData`实现了`DataTransfer`接口，通常用于拖放和复制/粘贴。这超出了本文所讨论的范围，但你可以在[DataTransfer规范](https://html.spec.whatwg.org/multipage/dnd.html#the-datatransfer-interface) 中进行详细了解。
+
+另外，还有一个可以访问剪切板的异步API：`navigator.clipboard`，详见 [Clipboard API 和事件规范](https://www.w3.org/TR/clipboard-apis/)
+
+### 5.2.4 安全限制
+剪贴板是“全局”操作系统级别的东西。用户可能会在各种应用程序之间切换，复制/粘贴不同的内容，而浏览器页面不应该能访问这些内容。
+
+因此，大多数浏览器仅允许在某些用户操作范围内（例如复制/粘贴等）对剪切板进行无缝的读/写访问。
+
+除火狐（Firefox）浏览器外，所有浏览器都禁止使用`dispatchEvent`生成“自定义”剪贴板事件，即使我们设法调度此类事件。规范也明确声明了，合成（syntetic）事件不得提供对剪切板的访问权限。
+
+此外，如果有人想将`event.clipboardData`保存在事件处理程序中，然后稍后再访问它 —— 这也不会生效。
+
+重申，`event.clipboardData`仅在用户启动的事件处理程序的上下文中生效。
+
+另外, `navigator.clipboard`是一个较新的 API，适用于任何上下文。如果需要，它会请求用户的许可。火狐（Firefox）浏览器尚未支持。
+
+## 5.3 表单：事件和方法提交
+
+提交表单时，会触发`submit`事件，它通常用于在将表单发送到服务器之前对表单进行校验，或者中止提交，并使用 JavaScript 来处理表单。
+
+`form.submit()`方法允许从 JavaScript 启动表单发送。我们可以使用此方法动态地创建表单，并将其发送到服务器。
+
+### 5.3.1 submit
+提交表单主要有两种方式：
+1. 第一种 —— 点击`<input type="submit">`或`<input type="image">`。
+2. 第二种 —— 在 input 字段中按下 Enter 键。
+
+这两个行为都会触发表单的 submit 事件。处理程序可以检查数据，如果有错误，就显示出来，并调用`event.preventDefault()`，这样表单就不会被发送到服务器了。
+
+**在输入框中使用 Enter 发送表单时，会在`<input type="submit">`上触发一次 `click`事件。**
+但实际上，其没有进行点击
+```html
+<form onsubmit="return false">
+ <input type="text" size="30" value="Focus here and press enter">
+ <input type="submit" value="Submit" onclick="alert('click')">
+</form>
+```
+
+### 5.3.2 手动提交
+
+如果要手动将表单提交到服务器，我们可以调用`form.submit()`
+
+```js
+let form = document.createElement('form');
+form.action = 'https://google.com/search';
+form.method = 'GET';
+
+form.innerHTML = '<input name="q" value="test">';
+
+// 该表单必须在文档中才能提交
+document.body.append(form);
+
+form.submit();
+```
