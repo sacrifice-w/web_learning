@@ -1942,3 +1942,81 @@ thumb.onpointerdown = function(event) {
 还有两个与指针捕获相关的事件：
 `gotpointercapture`会在一个元素使用`setPointerCapture`来启用捕获后触发。
 `lostpointercapture`会在捕获被释放后触发：其触发可能是由于`releasePointerCapture`的显式调用，或是`pointerup/pointercancel`事件触发后的自动调用。
+
+## 4.8 键盘事件
+键盘事件不光是指键盘内容的输入，因为现代设备中还包括语音识别或者是鼠标的复制粘贴等。
+
+当一个按键被按下时，会触发`keydown`事件，当按键被释放时，会触发`keyup`事件
+
+### 4.8.1 event.code 和 event.key
+
+事件对象的`key`属性允许获取字符，而事件对象的`code`属性则允许获取“物理按键代码”。
+
+例如，同一个按键 Z，可以与或不与 Shift 一起按下。我们会得到两个不同的字符：小写的 z 和大写的 Z。
+(所以说shift+字母能获得大写字母0.0，新知识)
+
+`event.key`正是这个字符，并且它将是不同的。但是,`event.code`是相同的：
+|key|event.key|event.code|
+|----|---|---|
+|z|z|KeyZ|
+|z|Z(大写)|KeyZ|
+
+所以说，event.key代表的是其本身所显示的值，但是event.code代表的是其的位置
+
+如果用户使用不同的语言，那么切换到另一种语言将产生完全不同的字符，而不是 "Z"。它将成为 event.key 的值，而 event.code 则始终都是一样的："KeyZ"。
+
+- 字符键的代码为 `"Key<letter>"`："KeyA"，"KeyB" 等。
+- 数字键的代码为：`"Digit<number>"`："Digit0"，"Digit1" 等。
+- 特殊按键的代码为按键的名字：`"Enter"`，"Backspace"，"Tab" 等。
+
+**在event.code中"KeyZ" 的首字母必须大写。**
+
+`event.code`准确地标明了哪个键被按下了。例如，大多数键盘有两个 Shift 键，一个在左边，一个在右边。`event.code`会准确地告诉我们按下了哪个键，而`event.key`对按键的“含义”负责：它是什么（一个 “Shift”）。
+
+********************************************************
+|key|event.key|event.code|
+|----|---|---|
+|F1|F1|F1|
+|Backspace|Backspace|Backspace|
+|Shift|Shift|ShiftRight/ShiftLeft|
+********************************************************
+
+```js
+document.addEventListener('keydown', function(event) {
+  if (event.code == 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+    alert('Undo!')
+  }
+});
+```
+给按键绑定一个ctrl+z的行为，就是event.code更好，因为event.code只代表位置，而event.key会随语言等产生变化。并且要兼容mac，所以需要metaKey
+
+但是event.code也有问题，就是美式布局和德式布局的不同。（但是感觉现在用德式布局的很少哎）
+
+所以说，对于会切换语言的问题，event.code更合适
+而对于不同布局的问题，event.key更合适
+
+如果按下一个键足够长的时间，它就会开始“自动重复”：keydown 会被一次又一次地触发，然后当按键被释放时，我们最终会得到 keyup。因此，有很多 keydown 却只有一个 keyup 是很正常的。
+对于由自动重复触发的事件，event 对象的`event.repeat`属性被设置为 true。
+
+
+```js
+<script>
+function checkPhoneKey(key) {
+  return (key >= '0' && key <= '9') || ['+','(',')','-','ArrowLeft','ArrowRight','Delete','Backspace'].includes(key);
+}
+</script>
+<input onkeydown="return checkPhoneKey(event.key)" placeholder="请输入手机号" type="tel">
+```
+对手机号进行检查，如果无效输入则不会返回。
+
+**即使我们对按键进行了过滤，但仍然可以使用鼠标右键单击 + 粘贴来输入任何内容。移动端设备提供了其他输入内容的方式。因此，这个过滤器并不是 100% 可靠。**
+
+另一种方式是跟踪`oninput`事件 —— 在任何修改后都会触发此事件。这样我们就可以检查新的`input.value`，并在其无效时修改它/高亮显示`<input>`。或者我们可以同时使用这两个事件处理程序。
+
+## 4.9 滚动事件
+
+滚动事件通过`scroll`来进行，允许对页面或元素滚动做出反应。
+
+`scroll`事件在`window`和可滚动元素上都可以运行。
+
+启动滚动的方式有很多，使用 CSS 的`overflow`属性更加可靠。
