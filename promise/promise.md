@@ -233,3 +233,5 @@ p.then(value => {
     }).then(value => {
         console.log(233);
     };
+```
+# 三、自定义promise（手写）
