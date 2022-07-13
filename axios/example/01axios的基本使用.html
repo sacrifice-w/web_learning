@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>axios基本使用</title>
+		<link
+			crossorigin="anonymous"
+			href="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css"
+		/>
+		<script src="https://cdn.bootcdn.net/ajax/libs/axios/1.0.0-alpha.1/axios.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h2 class="page-header">基本使用</h2>
+			<button class="btn btn-primary">发送GET请求</button>
+			<button class="btn btn-warning">发送POST请求</button>
+			<button class="btn btn-success">发送PUT请求</button>
+			<button class="btn btn-danger">发送DELETE请求</button>
+		</div>
+		<script>
+			// 获取按钮
+			const btn = document.querySelectorAll("button");
+
+			// 发送请求，获得内容
+			btn[0].onclick = function () {
+				axios({
+					// 发送方法
+					method: "GET",
+					// 发送链接
+					url: "http://localhost:3000/posts/2",
+				}).then((response) => {
+					console.log(response);
+				});
+			};
+			// 添加新内容
+			btn[1].onclick = function () {
+				axios({
+					// 发送方法
+					method: "POST",
+					// 发送链接
+					url: "http://localhost:3000/posts",
+					// 设置请求体
+					data: {
+						title: "hello world",
+						author: "wh",
+					},
+				}).then((response) => {
+					console.log(response);
+				});
+			};
+			// 修改内容
+			btn[2].onclick = function () {
+				axios({
+					// 发送方法
+					method: "PUT",
+					// 发送链接
+					url: "http://localhost:3000/posts/3",
+					// 设置请求体
+					data: {
+						title: "hello world",
+						author: "HAHAHAHAHA",
+					},
+				}).then((response) => {
+					console.log(response);
+				});
+			};
+
+			// 删除内容
+			btn[3].onclick = function () {
+				axios({
+					// 发送方法
+					method: "DELETE",
+					// 发送链接
+					url: "http://localhost:3000/posts/3"
+				}).then((response) => {
+					console.log(response);
+				});
+			};
+		</script>
+	</body>
+</html>

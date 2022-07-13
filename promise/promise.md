@@ -475,4 +475,30 @@ async function main(){
 ```
 
 ## 4.3 async 和 await结合
+```js
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发送ajax请求</title>
+</head>
+<body>
+    <button id="btn">点击获取段子</button>
+    <script>
+        // axios
+        function sendAjax(url){
 
+        }
+
+        let btn = document.querySelector('btn');
+
+        btn.addEventListener('click',async function(){
+            let joke = await sendAjax('https://api.apiopen.top/getJoke');
+            console.log(joke);
+        })
+    </script>
+</body>
+</html>
+```
