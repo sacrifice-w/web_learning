@@ -283,4 +283,61 @@ d = function (a,b):number{
 1. 对项目进行初始化 `npm init -y`
 2. 下载依赖包`npm i -D webpack webpack-cli ts-loader`
    -  -D代表的是在生产环境中安装的包，这些包只在开发环境中使用，用来进行代码打包等操作，不需要上传到服务环境中
-3. 使用``
+3. 使用`tsc --init`生成tsconfig.json文件
+4. 创建webpack.config.json文件
+```js
+// 引入包
+const path = require('path');
+
+// webpack中的所有配置都应该写在module.exports中
+module.exports = {
+    // 指定入口文件
+    entry: './src/index.ts',
+
+    // 指定打包文件所在目录
+    output:{
+
+        // 指定打包文件的目录
+        path: path.resolve(__dirname, 'dist'),
+        
+        //打包后文件的文件
+        filename: 'bundle.js'
+    },
+
+    // 指定webpack打包时要使用的模块
+    module:{
+        // 指定要加载的规则
+        rules:{
+            // test指定的是规则生效的文件
+            test: /\.ts$/,
+            // 要使用的loader
+            use: 'ts-loader',
+            // 要排除的文件
+            exclude:/node-modules/
+        }
+    }
+}
+```
+5. 在package.json文件中加入build
+```json
+{
+  "name": "ts_webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"  //add this
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-loader": "^9.3.1",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
+
+```
+6. 运行`npm run build`进行编译
