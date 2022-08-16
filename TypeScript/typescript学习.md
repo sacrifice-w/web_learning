@@ -304,17 +304,23 @@ module.exports = {
         filename: 'bundle.js'
     },
 
+    // 设置开发环境(development)或者是生产环境(production)，webpack4.0新增
+    mode:'development',
+
     // 指定webpack打包时要使用的模块
     module:{
         // 指定要加载的规则
-        rules:{
-            // test指定的是规则生效的文件
-            test: /\.ts$/,
-            // 要使用的loader
-            use: 'ts-loader',
-            // 要排除的文件
-            exclude:/node-modules/
-        }
+        rules:
+              [
+                {
+                // test指定的是规则生效的文件
+                test: /\.ts$/,
+                // 要使用的loader
+                use: 'ts-loader',
+                // 要排除的文件
+               exclude:/node-modules/
+                }
+              ]
     }
 }
 ```
@@ -327,7 +333,7 @@ module.exports = {
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"  //add this
+    "build": "webpack --mode development"  //add this
   },
   "keywords": [],
   "author": "",
@@ -344,4 +350,5 @@ module.exports = {
 
 上面的这些步骤只是能够将ts文件编译成js文件，但是不能够满足项目上线的需求。
 所以还需要一些别的操作：
-1. `npm i -D html-webpack-plugin`
+1. `npm i -D html-webpack-plugin`---用于生成一个HTML模板并进行引用
+2. `npm i -D webpack-dev-serve

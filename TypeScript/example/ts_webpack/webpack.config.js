@@ -1,6 +1,7 @@
 // 引入包
 const path = require('path');
 // 引入html插件
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 
 // webpack中的所有配置都应该写在module.exports中
 module.exports = {
@@ -17,18 +18,30 @@ module.exports = {
         filename: 'bundle.js'
     },
 
+    // 设置开发环境或者是生产环境，webpack4.0新增
+    mode:'development',
+
     // 指定webpack打包时要使用的模块
     module:{
         // 指定要加载的规则
-        rules:{
+        rules:[
+            {
             // test指定的是规则生效的文件
             test: /\.ts$/,
             // 要使用的loader
             use: 'ts-loader',
             // 要排除的文件
             exclude:/node-modules/
-        }
-    }
+            }
+        ]
+    },
+
+    // 配置webpack插件
+    plugins: [
+        new HTMLWebpackPlugin(
+            
+        ),
+    ]
 
 
 }
