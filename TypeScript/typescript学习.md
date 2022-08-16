@@ -351,4 +351,138 @@ module.exports = {
 上面的这些步骤只是能够将ts文件编译成js文件，但是不能够满足项目上线的需求。
 所以还需要一些别的操作：
 1. `npm i -D html-webpack-plugin`---用于生成一个HTML模板并进行引用
-2. `npm i -D webpack-dev-serve
+2. `npm i -D webpack-dev-server` ---用于能够实时调试代码，实时更新
+3. `npm i -D clean-webpack-plugin` ---用来清除旧代码，保证一直是最新的
+```js
+// 引入包
+const path = require('path');
+// 引入html插件
+const HTMLWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+// webpack中的所有配置都应该写在module.exports中
+module.exports = {
+    // 指定入口文件
+    entry: './src/index.ts',
+
+    // 指定打包文件所在目录
+    output:{
+
+        // 指定打包文件的目录
+        path: path.resolve(__dirname, 'dist'),
+        
+        //打包后文件的文件
+        filename: 'bundle.js'
+    },
+
+    // 设置开发环境或者是生产环境，webpack4.0新增
+    mode:'development',
+
+    // 指定webpack打包时要使用的模块
+    module:{
+        // 指定要加载的规则
+        rules:[
+            {
+            // test指定的是规则生效的文件
+            test: /\.ts$/,
+            // 要使用的loader
+            use: 'ts-loader',
+            // 要排除的文件
+            exclude:/node-modules/
+            }
+        ]
+    },
+
+    // 配置webpack插件
+    plugins: [
+      // 清除旧代码
+        new CleanWebpackPlugin(),
+        // 生成html文件
+        new HTMLWebpackPlugin({
+          // 使用模板html文件
+            template:"./src/index.html"
+        }),
+    ],
+
+    // 用来设置引用模块
+    resolve:{
+        extensions:['.ts','.js']
+    }
+}
+```
+4. 在package.json中加入一些新内容：
+```json
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    // 表示是生产环境的webpack
+    "build": "webpack --mode development",
+    // 能够通过npm start启动服务，并进行实时修改同步
+    "start": "webpack serve --open chrome.exe"
+  },
+```
+
+5. 为了更好的兼容性，还需要一些别的插件`npm i -D @babel/core @babel/preset-env babel-loader core-js`
+6. 在webpack.config.js中的module中再添加一些东西
+```js
+// 指定webpack打包时要使用的模块
+    module:{
+        // 指定要加载的规则
+        rules:[
+            {
+            // test指定的是规则生效的文件
+            test: /\.ts$/,
+            // 要使用的loader
+            use: [
+                // 配置babel
+                {
+                    // 指定加载器
+                    loader:"babel-loader",
+                    // 设置babel
+                    options:{
+                        // 设置预定义的环境
+                        presets:[
+                            [
+                                // 指定环境的插件
+                                "@babel/preset-env",
+                                {
+                                    // 要兼容的目标浏览器
+                                    targets:{
+                                        "chrome":'58',
+                                        "ie":'11'
+                                    },
+
+                                    // 指定corejs的版本
+                                    "corejs":"3",
+                                    // 使用corejs的方式"usage"表示按需加载
+                                    "useBuiltIns":"usage"
+                                }
+                            ]
+                        ]
+                    }
+                },
+                'ts-loader'
+            ],
+            // 要排除的文件
+            exclude:/node-modules/
+            }
+        ]
+    },
+```
+
+7. 如果为了兼容老ie，虽然现在基本没有咧。需要添加不转换箭头函数
+```js
+    // 指定打包文件所在目录
+    output:{
+
+        // 指定打包文件的目录
+        path: path.resolve(__dirname, 'dist'),
+        
+        //打包后文件的文件
+        filename: 'bundle.js',
+
+        // 告诉webpack不要转换箭头函数
+        environment:{
+            arrowFunction: false
+        }
+    },
+```

@@ -20,6 +20,9 @@ Ajax部分：<br />
 axios部分：<br />
 - [axios](axios/axios.md)
 
+TypeScript部分：<br />
+- [typescript](TypeScript/typescript学习.md)
+
 杂项部分：（不定期更新） <br />
 - [加载文档和其他资源](note/加载文档和其他资源.md)
 - [getter&setter](note/属性中的getter和setter.md)
