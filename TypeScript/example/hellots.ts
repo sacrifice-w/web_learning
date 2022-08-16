@@ -1,25 +1,35 @@
-abstract class Animal {
-	name: string;
-	age: number;
+class Person {
+	private _name: string;
+	private _age: number;
 
 	constructor(name: string, age: number) {
-		this.name = name;
-		this.age = age;
+		this._name = name;
+		this._age = age;
 	}
 
-	sayHello() {
-		console.log("动物在叫~");
+	get name() {
+		return this._name;
+	}
+
+	set name(value: string) {
+		this._name = value;
+	}
+
+	get age() {
+		return this._age;
+	}
+
+	set age(value: number) {
+		if (value > 0) {
+			this._age = value;
+		}
 	}
 }
 
-class Dog extends Animal {
-	run() {
-		console.log(`${this.name}在跑...`);
-	}
-}
+const per = new Person('tom',18);
+console.log(per);
 
-class Cat extends Animal {}
+per.name = 'jack';
+per.age = 228;
 
-const dog = new Dog("旺财", 4);
-console.log(dog);
-dog.run();
+console.log(per);

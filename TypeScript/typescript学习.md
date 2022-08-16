@@ -566,3 +566,362 @@ console.log(dog);
 dog.run();
 ```
 
+# 三、接口
+- 接口用来定义一个类结构,用来定义一个类中应该包含哪些属性和方法
+- 同时接口也可以当成类型声明去使用
+- 接口可以在定义类的时候去限制类的结构
+  - **接口中的所有的属性不能有实际的值**
+  - 接口只定义对象的结构，而不考虑实际值
+  - 在接口中所有的方法都是抽象方法
+  - 接口一般首字母大写
+  - 定义的变量比接口多/少一些属性是不允许的
+  - **赋值的时候，变量的形状必须和接口的形状保持一致**
+```ts
+interface MyInter{
+  name:string;
+  age?:number;
+  // 通过索引签名的形式可以使接口中有其他的任意属性
+  [propName: string]: any;
+
+  sayHello():void;
+}
+```
+定义类时，可以使类去实现一个接口，也就是使类满足接口的要求
+```ts
+class MyClass implements MyInter{
+  name:string;
+
+  constructor(name:string, age:number){
+    this.name = name;
+    this.age = age;
+  }
+
+  sayHello(){
+    console.log('Hello');
+  }
+}
+```
+
+接口可以定义多次，会被自动合并为单个接口。
+```ts
+interface Point { x: number; }
+interface Point { y: number; }
+const point: Point = { x: 1, y: 2 };
+```
+
+## 3.1 可选|只读属性
+```ts
+interface Person {
+  readonly name: string;
+  age?: number;
+}
+```
+只读属性用于限制只能在对象刚刚创建的时候修改其值。此外 TypeScript 还提供了`ReadonlyArray<T>`类型，它与 `Array<T>`相似，只是把所有可变方法去掉了，因此可以确保数组创建后再也不能被修改。
+```ts
+let a: number[] = [1, 2, 3, 4];
+let ro: ReadonlyArray<number> = a;
+ro[0] = 12; // error!
+ro.push(5); // error!
+ro.length = 100; // error!
+a = ro; // error!
+```
+## 3.2 几种绕开额外属性检查的方法
+### 3.2.1 鸭式辩型法
+```ts
+interface LabeledValue {
+  label: string;
+}
+function printLabel(labeledObj: LabeledValue) {
+  console.log(labeledObj.label);
+}
+let myObj = { size: 10, label: "Size 10 Object" };
+printLabel(myObj); // OK
+```
+```ts
+interface LabeledValue {
+  label: string;
+}
+function printLabel(labeledObj: LabeledValue) {
+  console.log(labeledObj.label);
+}
+printLabel({ size: 10, label: "Size 10 Object" }); // Error
+```
+上面代码，在参数里写对象就相当于是直接给`labeledObj`赋值，这个对象有严格的类型定义，所以不能多参或少参。而当你在外面将该对象用另一个变量`myObj`接收，`myObj`不会经过额外属性检查，但会根据类型推论为`let myObj: { size: number; label: string } = { size: 10, label: "Size 10 Object" };`，然后将这个`myObj`再赋值给`labeledObj`，此时根据类型的兼容性，两种类型对象，参照鸭式辨型法，因为都具有`label`属性，所以被认定为两个相同，故而可以用此法来绕开多余的类型检查。
+### 3.2.2 类型断言
+```ts
+interface Props { 
+  name: string; 
+  age: number; 
+  money?: number;
+}
+
+let p: Props = {
+  name: "兔神",
+  age: 25,
+  money: -100000,
+  girl: false
+} as Props; // OK
+```
+### 3.2.3 索引签名
+```ts
+interface Props { 
+  name: string; 
+  age: number; 
+  money?: number;
+  [key: string]: any;
+}
+
+let p: Props = {
+  name: "兔神",
+  age: 25,
+  money: -100000,
+  girl: false
+}; // OK
+```
+
+## 3.3 接口和类型别名
+接口和类型别名在大多数情况下效果是等价的，但是实际还是有区别的。
+首先从定义的角度：
+  - 接口的作用就是为类型命名和为代码或第三方代码定义数据类型
+  - type（类型别名）会给一个类型起个新名字。起别名不会新建一个类型，只是创建了一个新名字来引用某个类型。
+从语法角度讲：
+Interface:
+```ts
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface SetPoint {
+  (x: number, y: number): void;
+}
+```
+Type:
+```ts
+type Point = {
+  x: number;
+  y: number;
+};
+
+type SetPoint = (x: number, y: number) => void;
+```
+
+与接口不同，类型别名还可以用于其他类型，如基本类型（原始值）、联合类型、元组。
+```ts
+// primitive
+type Name = string;
+
+// object
+type PartialPointX = { x: number; };
+type PartialPointY = { y: number; };
+
+// union
+type PartialPoint = PartialPointX | PartialPointY;
+
+// tuple
+type Data = [number, string];
+
+// dom
+let div = document.createElement('div');
+type B = typeof div;
+```
+
+**接口可以定义多次,类型别名不可以**
+
+- 接口和类型别名的扩展方式不同，但并不互斥。接口可以扩展类型别名，同理，类型别名也可以扩展接口。
+- 接口的扩展就是继承，通过`extends`来实现。类型别名的扩展就是交叉类型，通过`&`来实现。
+```ts
+interface PointX {
+    x: number
+}
+
+interface Point extends PointX {
+    y: number
+}
+```
+
+```ts
+type PointX = {
+    x: number
+}
+
+type Point = PointX & {
+    y: number
+}
+```
+
+# 四、属性的封装
+通过在属性前添加属性的修饰符
+- public: 修饰的属性可以在任意位置访问（修改）默认值
+- private:私有属性，私有属性只能在类内部进行访问（修改）
+- 通过在类中添加方法使得私有属性可以被外部访问
+- protected:受保护的属性，只能在当前类和当前类的子类中访问
+```ts
+class Person {
+	private _name: string;
+	private _age: number;
+
+	constructor(name: string, age: number) {
+		this._name = name;
+		this._age = age;
+	}
+
+	get name() {
+		return this._name;
+	}
+
+	set name(value: string) {
+		this._name = value;
+	}
+
+	get age() {
+		return this._age;
+	}
+
+	set age(value: number) {
+		if (value > 0) {
+			this._age = value;
+		}
+	}
+}
+
+const per = new Person('tom',18);
+console.log(per);   //tom 18
+
+per.name = 'jack';
+per.age = -18;
+
+console.log(per);  // jack 18
+```
+可以直接将属性定义在构造函数中：
+```ts
+class C{
+  constructor(private name:string,
+              private age:number,
+              protected gender:string,
+              public flag:boolean) {
+    
+  }
+}
+```
+
+# 五、泛型
+- 在定义函数或是类时，如果遇到类型不明确就可以使用泛型
+- 泛型可以同时指定多个
+```ts
+function fn<T>(a: T): T{
+  return a;
+}
+
+// 可以直接调用具有泛型的函数
+let result = fn(a:10); //不指定泛型，TS可以自动对类型进行推断
+let result2 = fn<string>(a: 'hello'); //指定泛型
+```
+在泛型中`T`代表`Type`，在定义泛型时通常用作第一个类型变量名称。但实际上`T`可以用任何有效名称代替。除了`T`之外，以下是常见泛型变量代表的意思：
+- K（Key）：表示对象中的键类型；
+- V（Value）：表示对象中的值类型；
+- E（Element）：表示元素类型。
+
+使用`extends`关键字让T继承接口的类型从而实现类型约束。简单来说就是你定义一个类型，然后让 T 实现这个接口即可
+```ts
+interface Sizeable {
+  size: number;
+}
+function trace<T extends Sizeable>(arg: T): T {
+  console.log(arg.size);
+  return arg;
+}
+```
+
+## 5.1 typeof
+**typeof 的主要用途是在类型上下文中获取变量或者属性的类型**
+```ts
+interface Person {
+  name: string;
+  age: number;
+}
+const sem: Person = { name: "semlinker", age: 30 };
+type Sem = typeof sem; // type Sem = Person
+```
+typeof 操作符除了可以获取对象的结构类型之外，它也可以用来获取函数对象的类型，比如：
+```ts
+function toArray(x: number): Array<number> {
+  return [x];
+}
+type Func = typeof toArray; // -> (x: number) => number[]
+```
+
+## 5.2 keyof
+keyof可以用于获取某种类型的所有键，其返回类型是联合类型。
+```ts
+interface Person {
+  name: string;
+  age: number;
+}
+
+type K1 = keyof Person; // "name" | "age"
+type K2 = keyof Person[]; // "length" | "toString" | "pop" | "push" | "concat" | "join" 
+type K3 = keyof { [x: string]: Person };  // string | number
+```
+
+# 六、tsconfig.json文件
+- files - 设置要编译的文件的名称；
+- include - 设置需要进行编译的文件，支持路径模式匹配；
+- exclude - 设置无需进行编译的文件，支持路径模式匹配；
+- compilerOptions - 设置与编译流程相关的选项。
+
+```json
+{
+  "compilerOptions": {
+  
+    /* 基本选项 */
+    "target": "es5",                       // 指定 ECMAScript 目标版本: 'ES3' (default), 'ES5', 'ES6'/'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'
+    "module": "commonjs",                  // 指定使用模块: 'commonjs', 'amd', 'system', 'umd' or 'es2015'
+    "lib": [],                             // 指定要包含在编译中的库文件
+    "allowJs": true,                       // 允许编译 javascript 文件
+    "checkJs": true,                       // 报告 javascript 文件中的错误
+    "jsx": "preserve",                     // 指定 jsx 代码的生成: 'preserve', 'react-native', or 'react'
+    "declaration": true,                   // 生成相应的 '.d.ts' 文件
+    "sourceMap": true,                     // 生成相应的 '.map' 文件
+    "outFile": "./",                       // 将输出文件合并为一个文件
+    "outDir": "./",                        // 指定输出目录
+    "rootDir": "./",                       // 用来控制输出目录结构 --outDir.
+    "removeComments": true,                // 删除编译后的所有的注释
+    "noEmit": true,                        // 不生成输出文件
+    "importHelpers": true,                 // 从 tslib 导入辅助工具函数
+    "isolatedModules": true,               // 将每个文件做为单独的模块 （与 'ts.transpileModule' 类似）.
+
+    /* 严格的类型检查选项 */
+    "strict": true,                        // 启用所有严格类型检查选项
+    "noImplicitAny": true,                 // 在表达式和声明上有隐含的 any类型时报错
+    "strictNullChecks": true,              // 启用严格的 null 检查
+    "noImplicitThis": true,                // 当 this 表达式值为 any 类型的时候，生成一个错误
+    "alwaysStrict": true,                  // 以严格模式检查每个模块，并在每个文件里加入 'use strict'
+
+    /* 额外的检查 */
+    "noUnusedLocals": true,                // 有未使用的变量时，抛出错误
+    "noUnusedParameters": true,            // 有未使用的参数时，抛出错误
+    "noImplicitReturns": true,             // 并不是所有函数里的代码都有返回值时，抛出错误
+    "noFallthroughCasesInSwitch": true,    // 报告 switch 语句的 fallthrough 错误。（即，不允许 switch 的 case 语句贯穿）
+
+    /* 模块解析选项 */
+    "moduleResolution": "node",            // 选择模块解析策略： 'node' (Node.js) or 'classic' (TypeScript pre-1.6)
+    "baseUrl": "./",                       // 用于解析非相对模块名称的基目录
+    "paths": {},                           // 模块名到基于 baseUrl 的路径映射的列表
+    "rootDirs": [],                        // 根文件夹列表，其组合内容表示项目运行时的结构内容
+    "typeRoots": [],                       // 包含类型声明的文件列表
+    "types": [],                           // 需要包含的类型声明文件名列表
+    "allowSyntheticDefaultImports": true,  // 允许从没有设置默认导出的模块中默认导入。
+
+    /* Source Map Options */
+    "sourceRoot": "./",                    // 指定调试器应该找到 TypeScript 文件而不是源文件的位置
+    "mapRoot": "./",                       // 指定调试器应该找到映射文件而不是生成文件的位置
+    "inlineSourceMap": true,               // 生成单个 soucemaps 文件，而不是将 sourcemaps 生成不同的文件
+    "inlineSources": true,                 // 将代码与 sourcemaps 生成到一个文件中，要求同时设置了 --inlineSourceMap 或 --sourceMap 属性
+
+    /* 其他选项 */
+    "experimentalDecorators": true,        // 启用装饰器
+    "emitDecoratorMetadata": true          // 为装饰器提供元数据的支持
+  }
+}
+```
