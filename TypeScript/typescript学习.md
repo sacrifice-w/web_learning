@@ -486,3 +486,83 @@ module.exports = {
         }
     },
 ```
+
+## 2.4 类、构造函数和this
+```ts
+class Dog{
+  name: string;
+  age: number;
+  // constructor被称为构造函数
+  // 构造函数会在对象创建时调用
+  constructor(name:string, age:number){
+    // 在实例方法中，this就表示当前的实例
+    this.name = name;
+    this.age = age;
+  }
+
+  bark(){
+    console.log(this);
+  }
+}
+```
+
+## 2.5 继承和抽象类
+- Animal是父类，Dog是子类
+- 使用继承后，子类将会拥有父类所有的方法和属性
+- 通过继承可以将多个类中共有的代码写在一个父类中
+- 在子类中添加了和父类相同的方法，则子类方法会覆盖掉父类方法
+
+- 抽象类的作用就是专门用来被继承
+- 抽象类中可以添加抽象方法
+- 抽象类不能用来创建对象
+```ts
+// 以abstract开头的类就是抽象类
+abstract class Animal{
+  name:string;
+  age:number;
+
+  constructor(name:string, age:number){
+    this.name = name;
+    this.age = age;
+  }
+
+  sayHello(){
+    console.log('动物在叫~');
+  }
+
+  // 抽象方法只能定义在抽象类中，子类必须对抽象方法进行重写
+  // 抽象方法没有方法体
+  abstract say():void;
+}
+
+
+class Dog extends Animal{
+
+  age: number;
+  // 如果子类写了构造函数，必须写super调用父类
+  // 和react什么都一样
+  constructor(name:string, age:number){
+    super(name);
+    this.age = age;
+  }
+
+  sayHello(){
+    // 在类的方法中，super就表示当前类的父类
+    super.sayHello();
+  }
+  run(){
+    console.log(`${this.name}在跑...`);
+  }
+}
+
+class Cat extends Animal {
+  sayHello(){
+    console.log("喵喵喵");
+  }
+}
+
+const dog = new Dog("旺财", 4);
+console.log(dog);
+dog.run();
+```
+
