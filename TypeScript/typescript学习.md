@@ -341,3 +341,7 @@ module.exports = {
 
 ```
 6. 运行`npm run build`进行编译
+
+上面的这些步骤只是能够将ts文件编译成js文件，但是不能够满足项目上线的需求。
+所以还需要一些别的操作：
+1. `npm i -D html-webpack-plugin`

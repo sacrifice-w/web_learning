@@ -1,5 +1,6 @@
 // 引入包
 const path = require('path');
+// 引入html插件
 
 // webpack中的所有配置都应该写在module.exports中
 module.exports = {
