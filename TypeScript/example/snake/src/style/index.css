@@ -32,8 +32,6 @@ body {
   position: absolute;
 }
 #stage #food {
-  left: 40px;
-  top: 100px;
   width: 10px;
   height: 10px;
   position: absolute;
@@ -53,11 +51,14 @@ body {
   display: flex;
   justify-content: space-between;
 }
-#begin {
-  width: 50px;
-  height: 30px;
-  line-height: 30px;
-  background-color: black;
+#button {
+  background-color: #4CAF50;
+  /* Green */
+  border: none;
   color: white;
+  padding: 10px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
   font-size: 18px;
 }
