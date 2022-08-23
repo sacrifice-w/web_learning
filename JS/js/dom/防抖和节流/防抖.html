@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防抖</title>
+</head>
+<body>
+    <input type="text" id="input">
+
+    <script>
+        function input(event) {
+            const value = event.target.value;
+            request(value);
+        }
+
+        input = debounce(input,300);
+
+        function request(data){
+            console.log('请求发送的值',data);
+        }
+
+        function debounce(fn, delay = 200) {
+            let timeout = null;
+            return function(...args) {
+                if(timeout){
+                    clearTimeout(timeout);
+                    timeout = null;
+                }else{
+                    // 对第一次输入立即执行
+                    fn.apply(this,args);
+                }
+                timeout = setTimeout(()=>{
+                    fn.apply(this,args);
+                },delay);
+            }
+        }
+
+        document.getElementById('input').oninput = input;
+    </script>
+</body>
+</html>
